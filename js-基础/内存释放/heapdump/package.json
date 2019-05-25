@@ -1,0 +1,15 @@
+{
+  "name": "heapdump",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "run": "node --expose-gc index.js",
+    "run-kill": "node  kill.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "heapdump": "^0.3.14"
+  }
+}
