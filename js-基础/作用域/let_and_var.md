@@ -112,6 +112,6 @@ for (let j = 0; j < 10; j++) {
         console.log(i);     // 2
     }
     console.log(i);         // 1
-})();
+})();****
 
 ```
