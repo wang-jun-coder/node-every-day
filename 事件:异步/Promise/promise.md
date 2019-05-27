@@ -72,6 +72,14 @@ Promise.resolve()
 
 **一般认为 catch 是 then(nul, onRejected) 的语法糖。then(onFulfilled, onRejected) 中，onFulfilled 若抛出异常，onRejected 无法捕获，但是 catch 可以捕获到**
 
+### promise 穿透
+```js
+Promise.resolve('foo').then(null).then(function (result) {
+    console.log(result);    // foo
+});
+// 当传递给 then 不是一个函数时，会给一个返回值的默认函数，导致值继续往下传递
+```
+
 ### promise 构造函数中是同步执行
 ```js
 const p1 = new Promise((resolve, reject) => {

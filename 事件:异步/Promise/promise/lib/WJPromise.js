@@ -58,6 +58,7 @@ class WJPromise {
 
     then(onFulFilled, onRejected) {
 
+        // promise 值穿透?
         onFulFilled = onFulFilled && typeof onFulFilled === 'function' ? onFulFilled : value => value;
         onRejected = onRejected && typeof onRejected === 'function' ? onRejected : reason => {throw reason};
 

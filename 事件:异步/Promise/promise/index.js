@@ -82,6 +82,9 @@ new Promise((resolve,reject) => {
 });
 console.log(5);
 
+Promise.resolve('foo').then(null).then(function (result) {
+    console.log(result);    // foo
+});
 
 const fs = require('fs');
 const path = `./package.json`;
@@ -113,7 +116,6 @@ readFileP(path, 'utf8')
 
 
 const WJPromise = require('./lib/WJPromise');
-
 const p = new WJPromise((resolve, reject) => {
     setTimeout(() => resolve('test'), 100)
 });
@@ -159,3 +161,4 @@ WJPromise.race([p2, p3])
     .then(val => console.log(`race then: ${val}`))  // race then: p2
     .catch(e => console.log(`race catch: ${e}`));
 
+WJPromise.resolve(`WJPromise`).then(null).then(val => console.log(`WJPromise 穿透${val}`));
