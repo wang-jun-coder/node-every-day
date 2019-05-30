@@ -46,3 +46,36 @@ const fs = require('fs');
 // while (Date.now() - start < 10) {
 //
 // }
+
+
+setTimeout(() => console.log(`setTimeout1`));
+setTimeout(() => {
+    console.log(`setTimeout2`);
+    Promise.resolve().then(() => console.log(`promise1`));
+    process.nextTick(() => console.log(`nextTick1`));
+    console.log(`setTimeout2 end`);
+});
+
+setTimeout(() => console.log(`setTimeout3`));
+Promise.resolve().then(() => console.log(`promise2`));
+process.nextTick(() => console.log(`nextTick2`));
+/** node v8.9.1
+ nextTick2
+ promise2
+ setTimeout1
+ setTimeout2
+ setTimeout2 end
+ setTimeout3
+ nextTick1
+ promise1
+ */
+/** node v12.3.1
+ nextTick2
+ promise2
+ setTimeout1
+ setTimeout2
+ setTimeout2 end
+ nextTick1
+ promise1
+ setTimeout3
+ * */

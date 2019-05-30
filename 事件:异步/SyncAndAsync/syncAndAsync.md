@@ -120,7 +120,14 @@ setImmediate(() => console.log(`immediate`));
 * check （检测）：setImmediate() 回调函数在这里执行。
 *  close callbacks（关闭的回调函数）： 一些准备关闭的回调函数，如：socket.on('close', ...)。
 
-**process.nextTick 不属于任何一个阶段，而是每个阶段执行完均会检查执行 process.nextTick 的回调，若 process.nextTick 回调中继续添加 process.nextTick，则会导致死循环。**
+#### 备注
+* 每个阶段都有一个 FIFO 队列来执行回调，process.nextTick 也有一个 nextTickQueue
+* process.nextTick 不属于任何一个阶段，而是每个阶段执行完均会检查执行
+* 若 process.nextTick 回调中继续添加 process.nextTick，则会导致死循环
+* 当该队列已用尽或达到回调限制，事件循环将移动到下一阶段
+* pending callbacks对某些系统操作（如 TCP 错误类型）执行回调。例如，如果 TCP 套接字在尝试连接时接收到 ECONNREFUSED，则某些 *nix 的系统希望等待报告错误。这将被排队以在 挂起的回调 阶段执行，与 poll 阶段不同
+
+
 
 ```js
 
@@ -178,35 +185,25 @@ setTimeout(() => {
 ```
 
 
-### 疑问？？？？
-```js
-// timeout_vs_immediate.js
-const fs = require('fs');
 
-fs.readFile(__filename, () => {
-  setTimeout(() => {
-    console.log('timeout');
-  }, 0);
-  setImmediate(() => {
-    console.log('immediate');
-  });
-});
 
-如果你把这两个函数放入一个 I/O 循环内调用，setImmediate 总是被优先调用
+### 宏任务与微任务
 
-为什么特别指出 I/O 循环？
+* 异步任务分为两种，微任务和宏任务
+* nodejs 环境下 微任务再事件循环的各阶段切换间时执行，且
+* process.nextTick、Promise.then Promise.catch Promise.finally 属于微任务，且process.nextTick优先级较高
+* setTimeout、setInterval、setImmediate 所创造的任务都是宏任务，注册到下轮事件循环
 
-下面这段代码为什么是不稳定的？
 
-setTimeout(() => {
-    setImmediate(() => {
-        console.log(`setImmediate`);
-    });
 
-    setTimeout(() => {
-        console.log(`setTimeout`);
-    });
 
-});
 
-```
+
+
+
+
+
+
+
+
+

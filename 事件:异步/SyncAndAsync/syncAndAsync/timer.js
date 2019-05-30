@@ -35,6 +35,10 @@ setTimeout(() => {
 
 /*
 * 这个为什么不稳定??????????
+*
+* https://nodejs.org/zh-cn/docs/guides/event-loop-timers-and-nexttick/#setimmediate-settimeout
+*
+* 据文档描述 I/O 循环内调用 setImmediate 先调用,  setTimeout 的回调并不属于 io 回调, 置于为何 非得是 IO 回调, 并不清楚
 * */
 
 setImmediate(() => {
@@ -42,7 +46,7 @@ setImmediate(() => {
     setTimeout(() => console.log('setImmediate: timeout in callback'));
 });
 /*
-* 这个为什么也不稳定???? 非要勉强解释, 实际上不成立,
+* 这个为什么也不稳定????
 *
 * 和在主模块中一样, setTimeout(fn,0) 无法保证立即调用
 *
@@ -52,6 +56,19 @@ setImmediate(() => {
 * 次轮循环开始进入 timer 阶段, 若上轮循环足够快, 则此时 执行 setTimeout 回调, 否则等待下轮循环
 * 经过其他事件循环阶段, 再次进入 check 阶段, 执行 内部 setImmediate 的回调
 * */
+
+// 验证上述 setImmediate 不稳定的猜想
+setImmediate(() => {
+    setImmediate(() => console.log(`setImmediate: immediate in callback`));
+    setTimeout(() => console.log('setImmediate: timeout in callback'));
+
+    // 打开本段注释, setTimeout 稳定首先输出
+    // const start = Date.now();
+    // while (Date.now() - start < 10) {
+    //
+    // }
+});
+
 
 
 
