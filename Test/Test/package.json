@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
-    "test-file-util": " nyc mocha test/FileUtil.js.should.test.js  -r chai/register-expect"
+    "test": " nyc mocha --recursive  -r chai/register-expect"
   },
   "author": "",
   "license": "ISC",

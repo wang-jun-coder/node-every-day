@@ -49,7 +49,7 @@ const readFileAsync = (req, res) => {
         })
         .catch(e => {
             res.statusCode = 500;
-            res.statusMessage = e.message;
+            res.statusMessage = `Internal Server Error`;
             res.end()
         });
 };
@@ -60,7 +60,8 @@ const readFileSync = (req, res) => {
         const content =fileUtil.readFileSync(fileName);
 
         res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
+        // res.setHeader('Content-Type', 'application/json'); // 返回数据若非 json,客户端尝试解析会报错, 测试时可发现
+        res.setHeader('Content-Type', 'text/html');
         res.setHeader('charset', 'utf-8');
         res.end(content);
     } catch (e) {
@@ -69,16 +70,5 @@ const readFileSync = (req, res) => {
         res.end();
     }
 };
-
-
-
-// 做一个极为简单的路由分发
-const server = http.createServer(onRequest);
-server.on("error", err => {
-    console.log(`server on error: ${err}`);
-});
-// NODE_ENV=production node app.js
-server.listen(3000);
-
 
 module.exports = onRequest;
