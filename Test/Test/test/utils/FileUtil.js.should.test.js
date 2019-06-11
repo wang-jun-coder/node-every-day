@@ -1,9 +1,16 @@
 const path = require('path');
 const { expect } = require('chai');
-const FileUtil = require('../src/utils/FileUtil');
+const FileUtil = require('../../src/utils/FileUtil');
 
 
-describe('#src/FileUtil.js', async () => {
+describe('#src/FileUtil.js', function() {
+    // 使用内置 before, after 时, 需注意 回调函数, 普通函数与箭头函数的区别
+    before(async () => {
+        console.log(`before test`);
+    });
+    after(async () => {
+        console.log(`after test`);
+    });
 
     it('should init Error', function () {
         let initErr = null;
@@ -21,7 +28,7 @@ describe('#src/FileUtil.js', async () => {
         let initErr = null;
         let fileUtil = null;
         try {
-            fileUtil = new FileUtil(path.resolve(__dirname,'../src/assets'));
+            fileUtil = new FileUtil(path.resolve(__dirname,'../../src/assets'));
         } catch (e) {
             initErr = e;
         }
@@ -37,7 +44,7 @@ describe('#src/FileUtil.js', async () => {
     });
 
     it('should readFileSync Error', function () {
-        let fileUtil = new FileUtil(path.resolve(__dirname,'../src/assets'));
+        let fileUtil = new FileUtil(path.resolve(__dirname,'../../src/assets'));
 
         let readErr = null;
         try {
@@ -49,7 +56,7 @@ describe('#src/FileUtil.js', async () => {
     });
 
     it('should readFileSync Dir Error', function () {
-        let fileUtil = new FileUtil(path.resolve(__dirname,'../src/assets'));
+        let fileUtil = new FileUtil(path.resolve(__dirname,'../../src/assets'));
 
         let readErr = null;
         try {
@@ -61,7 +68,7 @@ describe('#src/FileUtil.js', async () => {
     });
 
     it('should readFileSync Success', function () {
-        let fileUtil = new FileUtil(path.resolve(__dirname,'../src/assets'));
+        let fileUtil = new FileUtil(path.resolve(__dirname,'../../src/assets'));
 
         let readErr = null;
         let content = null;
@@ -77,7 +84,7 @@ describe('#src/FileUtil.js', async () => {
     });
 
     it('should readFileAsync Error', async () => {
-        let fileUtil = new FileUtil(path.resolve(__dirname,'../src/assets'));
+        let fileUtil = new FileUtil(path.resolve(__dirname,'../../src/assets'));
 
         let readErr = null;
         try {
@@ -89,7 +96,7 @@ describe('#src/FileUtil.js', async () => {
     });
 
     it('should readFileAsync dir Error', async () => {
-        let fileUtil = new FileUtil(path.resolve(__dirname,'../src/assets'));
+        let fileUtil = new FileUtil(path.resolve(__dirname,'../../src/assets'));
 
         let readErr = null;
         try {
@@ -101,7 +108,7 @@ describe('#src/FileUtil.js', async () => {
     });
 
     it('should readFileAsync Success', async () => {
-        let fileUtil = new FileUtil(path.resolve(__dirname,'../src/assets'));
+        let fileUtil = new FileUtil(path.resolve(__dirname,'../../src/assets'));
 
         let readErr = null;
         let content = null;
@@ -115,6 +122,4 @@ describe('#src/FileUtil.js', async () => {
         expect(content).to.be.a('string')
             .have.property('length');
     });
-
-
 });
