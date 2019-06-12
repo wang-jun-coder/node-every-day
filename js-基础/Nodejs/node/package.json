@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "test": "nyc mocha --recursive -r chai/register-expect"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "nyc": "^14.1.1"
+  }
+}
