@@ -257,6 +257,13 @@ console.log(`bbbbbbaaaaaa`.match(reg8));    // [ 'baaaaa' ]
 // 如: reg2, 首先匹配到 aaaaaaaxb 已满足要求, 但是继续增也符合条件, 所以默认会继续向后匹配直到结束或不匹配
 ```
 
+### Redos 攻击
+* 有漏洞的正则表达式可能消耗较多时间较多
+* nodejs 中正则匹配为同步操作
+* 正则匹配耗时过长，导致事件循环阻塞，将使得服务不可用
+* 建议优先搜索已存在的正则，避免写出有漏洞的情况 [regexlib](http://www.regexlib.com/)
+* 或者使用其他正则包（但不能避免所有漏洞）
+
 
 ### 资料
 * [nodejs 正则](https://nodejs.org/zh-cn/docs/guides/dont-block-the-event-loop/#redos)
