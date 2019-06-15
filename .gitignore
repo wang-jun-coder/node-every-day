@@ -63,3 +63,4 @@ typings/
 **/.idea/**
 **/*.heapsnapshot
 **/node_modules/**
+**/latest/**
