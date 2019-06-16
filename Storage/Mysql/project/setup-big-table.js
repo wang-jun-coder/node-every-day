@@ -1,11 +1,16 @@
 const mysql      = require('mysql');
-// const cluster = require('cluster');
-//
-// if (cluster.isMaster) {
-//     const len = process
-// }
+const cluster = require('cluster');
 
-var connection = mysql.createConnection({
+if (cluster.isMaster) {
+
+    for (let i = 0; i < 4; i++) {
+        cluster.fork();
+    }
+    return;
+}
+
+console.log(`${process.pid} has start`);
+const connection = mysql.createConnection({
     host     : '127.0.0.1',
     user     : 'wangjun',
     password : '123456',
@@ -84,9 +89,9 @@ async function  insetIntoBigTable() {
            '${randomInt(minInt, maxInt)}', 
            '${randomInt(minInt, maxInt)}', 
            '${randomStr(1)}', 
-           '${randomStr(300)}', 
-           '${randomStr(300)}', 
-           '${randomStr(3000)}', 
+           '${randomStr(10)}', 
+           '${randomStr(50)}', 
+           '${randomStr(100)}', 
            '${randomDatetime()}', 
            '${randomDatetime()}', 
            '${randomInt(0,1)}'
@@ -111,7 +116,7 @@ const insertRows = async (con, rows) => {
 };
 connection.connect(function (err, ok) {
     if (err) return  console.log(err);
-    insertRows(connection, 1000000)
+    insertRows(connection, 200000)
         .then(() => {
             console.log(`insert complete`);
             connection.end()
