@@ -33,6 +33,38 @@ docker stop redis-latest
 docker rm redis-latest
 ```
 
+### redis 持久化
+#### 持久化类型
+* RDB
+	* 在指定的时间间隔内生成数据集的时间点快照
+* AOF 
+	* 记录服务器所有写操作命令，新命令追加到文件末尾。
+	* 可以在后台对 AOF 文件进行重写，使得 AOF 文件体积不会超过保存数据集状态所需的实际大小
+* RDB + AOF
+	* 优先使用 AOF 还原数据集，通常 AOF 比 RDB 文件保存的数据集更完整
+* 不使用持久化，数据仅存在服务器运行时
+
+### 优缺点
+* RDB
+	* 适合备份，保存了 redis 某个时间点的数据集，方便还原指定版本
+	* 文件紧凑，适合用于灾难恢复
+	* 最大化性能，保存 RDB 时仅需要 fork 子进程，父进程无需 io 操作
+	* 恢复速度相比 AOF 快
+	* 故障时丢失数据，保存时间点间隔不能过近（至少 5 分钟）
+	* 数据集较大 fork 可能耗时过长
+	
+* AOF
+	* 完整性高，默认每秒一次保存，仍可保持良好性能，最多只丢失 1s 数据
+	* append only，不需要 seek 文件操作
+	* 自动重写，新的 AOF 文件保存恢复当前数据集最小的命令集合
+	* 有序保存所有写操作，便于分析读取
+	* aof 文件通常大于 rdb
+	* aof 速度可能慢于 rdb
+	* 可能部分写命令阻塞导致数据恢复异常
+
+
+
+
 ### [redis 基本使用](http://redisdoc.com/)
 
 ```bash
@@ -179,6 +211,78 @@ PERSIST key # 移除生存时间，当生存时间移除成功时，返回 1 . �
 PEXPIRE key 1000 # 设置过期时间，毫秒
 PEXPIREAT key 1560783424000 # 设置过期时间戳毫秒
 PTTL key # 返回剩余时间，类似 TTL，单位 毫秒
+
+# 事务
+MULTI # 开始一个事务，此命令后的多条命令会按先后顺讯放入队列，由 EXEC 命令原子性的执行
+EXEC # 执行事务块内的命令，如果某些 key 处于 watch 监视，且事务块中有和这个 key 相关的命令，那么 exec 只在这些 key 没有被其他命令所改动的情况下执行生效，否则事务被打断
+DISCARD # 放弃当前事务，若此时 watch 了某些 key，则取消所有 watch
+WATCH key1 key2 # 监视一个或多个 key，若在事务执行前这些 key 被其他命令改动，那么事务被打断
+UNWATCH # 取消对所有 key 的监视，EXEC 或 DISCARD 先执行，就不需要 UNWATCH 了
+
+# lua 脚本
+EVAL "return {KEYS[1],KEYS[2],ARGV[1],ARGV[2]}" 2 key1 key2 value1 value2 # 执行一段脚本，指定参数个数，参数名称和对应的值
+EVALSHA a42059b356c875f0717db19a51f6aaca9ae659ea 2 k1 k2 v1 v2 # 执行脚本，类似 EVALSHA，若脚本缓存不存在 报错 NOSCRIPT
+SCRIPT LOAD "return {KEYS[1],KEYS[2],ARGV[1],ARGV[2]}" # 加载 lua 脚本，返回 sha1 校验和，可通过 EVALSHA 执行
+SCRIPT EXISTS a42059b356c875f0717db19a51f6aaca9ae659ec a42059b356c875f0717db19a51f6aaca9ae659ea # 判断一个或多个脚本是否存在，返回列表 0 表示不存在， 1 表示存在
+SCRIPT FLUSH # 清空脚本缓存
+SCRIPT KILL # 关闭当前运行的且没有执行过写操作的脚本，若脚本进行了写操作，且无限循环，只能通过 SHUTDOWN NOSAVE 停止 redis 进程来停止脚本运行
+
+# 持久化
+SAVE # 同步保存，rdb，会阻塞所有操作
+BGSAVE # 后台异步保存，rdb，fork 子进程保存，保存完毕子进程自动退出
+BGREWRITEAOF # 后台执行 aof 重写操作，重新创建 aof，
+LASTSAVE # 最近一次 Redis 成功将数据保存到磁盘上的时间，以 UNIX 时间戳格式表示，十位
+
+# pub、sub
+PUBLISH channel "this is message form channel" # 向指定频道发送消息
+SUBSCRIBE channel1 channel2 # 监听指定频道消息
+PSUBSCRIBE channel* new* # 监听符合表达式的频道
+UNSUBSCRIBE channel1 channel2 # 取消消息订阅
+PUNSUBSCRIBE channel* new* # 取消符合表达式的监听，无参则取消 使用PSUBSCRIBE 订阅的频道 
+PUBSUB CHANNELS * # 获取符合表达式的活跃频道列表, 模式订阅的不算
+PUBSUB NUMSUB channel1 channel2 # 获取频道订阅者个数
+PUBSUB NUMPAT # 客户端订阅的所有模式的数量总和
+SLAVEOF 127.0.0.1 6378 # 将当前服务器变为 指定服务器的从服务器
+SLAVEOF NO ONE # 不丢弃同步所得，转为主服务器
+ROLE # 返回当前服务器角色，master 、 slave 或者 sentinel， 主服务器将返回属下从服务器的 IP 地址和端口。从服务器将返回自己正在复制的主服务器的 IP 地址、端口、连接状态以及复制偏移量。Sentinel 将返回自己正在监视的主服务器列表。
+
+# 客户端与服务器
+CONFIG SET requirepass 123456 # 设置密码（建议通过配置文件设置）
+AUTH password # 认证密码
+QUIT # 关闭连接
+INFO # redis 信息
+SHUTDOWN SAVE # 保存并关闭，可用 NOSAVE 不保存
+TIME # 返回服务器时间，第一个字符串是当前时间戳（10 位），第二个则是当前这一秒已过去的微妙数
+CLIENT SETNAME client1 # 为当前链接命名
+CLIENT GETNAME # 获取当前链接的名称，未设置则返回 nil
+CLIENT LIST # 返回所有连接到服务器的客户端信息和统计数据
+CLIENT KILL 127.0.0.1:61312 # 关闭指定客户端链接，数据来源 CLIENT LIST
+
+# 配置相关
+CONFIG GET * # 获取符合表达式的 redis 可配置参数列表
+CONFIG SET requirepass 123456 # 动态调整redis 配置，立即生效，可配置参数使用 CONFIG GET * 获取
+CONFIG RESETSTAT # 重置 info 中的某些统计状态
+CONFIG REWRITE # 将当前配置写入 redis.conf 中
+
+# 调试相关
+PING # 检测链接是否正常服务器正常返回 PONG
+ECHO message # 打印信息，返回 message
+OBJECT REFCOUNT key # 返回 key 引用所存储值的次数
+OBJECT ENCODING key # 返回 key 的编码类型
+OBJECT IDLETIME key # 返回 key 自存储以来空闲的时间，单位：秒
+CONFIG get slowlog* # 查看当前 slowlog 的配置
+SLOWLOG GET 1 # 查看 slowlog 日志， 数字指定数量，不传则默认 slowlog-max-len
+SLOWLOG LEN # 查看当前慢日志列表
+MONITOR # 实时输出 redis 接收到的命令
+DEBUG OBJECT key # 返回 key 对应的 obeject 信息，内存地址，引用次数，编码类型等
+DEBUG SEGFAULT # 崩溃redis，模拟 bug 
+
+# 内部命令
+MIGRATE 127.0.0.1 6378 poster_123 0 100 AUTH 123456 COPY # 迁移 key 至指定 redis 的 0 号 db，设置超时 100ms，指定密码 123456， copy 则是保留当前实例 key ，replace 则会删除当前实例的 key
+DUMP key # 序列化指定 key
+RESTORE r-key 0 "\x00\x05value\b\x008\xdb-\x87h\xb3\x11V" REPLACE # 反序列化某个值到指定键上，并设置 ttl，0 标记不设置过期时间 replace 指定若 key 存在则覆盖，否则若 key 存在则报错
+SYNC # 复制功能的内部命令
+PSYNC ? -1 # 复制功能的内部命令
 
 ```
 
