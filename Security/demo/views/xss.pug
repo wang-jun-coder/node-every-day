@@ -1,0 +1,11 @@
+doctype
+html
+    head
+        title xss demo
+
+    body
+        form
+            // 如果用户输入 "/> <script>alert(document.cookie);</script> <!--  可能构成 xss 攻击, Chrome 目前默认拦截xss 攻击
+            input(style='width:400px;height:30px' type='text' name='address' value='input something')
+            input(type='submit' value='submit')
+
