@@ -64,3 +64,4 @@ typings/
 **/*.heapsnapshot
 **/node_modules/**
 **/latest/**
+**/build/**
