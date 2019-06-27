@@ -32,7 +32,7 @@ namespace VariableDeclarations {
     }
 // 块级作用域变量的获取
     function f3() {
-        let getCity = null;
+        let getCity:null|(()=>string) = null;
         if (true) {
             const city = 'seattle';
             getCity = function () {
