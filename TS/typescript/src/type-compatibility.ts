@@ -24,8 +24,8 @@ namespace TypeCompatibilityNameSpace {
   greet(y);
 
   // 比较两个函数
-  let f1:(a: number) => 0;
-  let f2:(a: number, s: string) => 0;
+  let f1:undefined|((a: number) => 0);
+  let f2:undefined|((a: number, s: string) => 0);
   // f1 的参数列表,在f2 中都能找到对应类型的参数
   f2 = f1;
   // f2 的参数 s 在 f1 中找不到对应类型参数, 所以报错
@@ -90,8 +90,8 @@ namespace TypeCompatibilityNameSpace {
   interface Empty<T> {
 
   }
-  let x1: Empty<number>;
-  let y1: Empty<string>;
+  let x1: undefined | Empty<number>;
+  let y1: undefined |Empty<string>;
   // 二者结构相同,可以赋值
   x1 = y1;
   interface Empty1<T> {
