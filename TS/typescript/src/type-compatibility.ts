@@ -44,8 +44,71 @@ namespace TypeCompatibilityNameSpace {
 
 
   // 函数参数双向协变
+  enum EventType {
+    Mouse, Keyboard,
+  }
+  interface Event {
+    timestamp: number;
+  }
+  interface MouseEvent extends Event {
+    x: number;
+    y: number;
+  }
+  interface KeyEvent extends Event {
+    keyCode: number;
+  }
+  function listenEvent(eventType:EventType, handle:(n:Event)=>void) {
+
+  }
+  // 最常用
+  listenEvent(EventType.Mouse, (e:MouseEvent):void => console.log(`${e.x},${e.y}`));
+  // 也可以
+  listenEvent(EventType.Mouse, (e: Event):void => console.log(`${(<MouseEvent>e).x}, ${(<MouseEvent>e).y}`));
+  listenEvent(EventType.Mouse, <(e:Event)=>void>((e: MouseEvent) => console.log(`${e.x}, ${e.y}`)));
+
+  // number 不是 event 的子类, 故不能转换
+  //listenEvent(EventType.Mouse, (e:number) => console.log(e)); // 类型“(e: number) => void”的参数不能赋给类型“(n: Event) => void”的参数。参数“e”和“n” 的类型不兼容。不能将类型“Event”分配给类型“number”
 
 
+  // 可选参数和剩余参数
+  function invokeLater(args: any[], callback: (...args: any[]) => void) {
+    setTimeout(() =>callback(...args), 1);
+  }
+  invokeLater([1, 2], (x, y) => console.log(`${x}, ${y}`));
+  invokeLater([1, 2], (x?, y?) => console.log(`${x}, ${y}`));
+
+  // 枚举, 枚举类型与数字类型互相兼容, 不同枚举类型之间不兼容
+  enum Status {Ready, Waitting};
+  enum Color { Red, Blue, Green};
+  let status = Status.Ready;
+  status = 1;
+  let status1 = 1;
+  status1 = Status.Ready;
+  //status = Color.Green; // 不能将类型“Color.Green”分配给类型“Status”。
+  
+  // 泛型
+  interface Empty<T> {
+
+  }
+  let x1: Empty<number>;
+  let y1: Empty<string>;
+  // 二者结构相同,可以赋值
+  x1 = y1;
+  interface Empty1<T> {
+    data: T  
+  }
+  let x2: Empty1<number>;
+  let y2: Empty1<string>;
+  // 此时 data 属性的类型不一致, 故不能替换
+  // x2 = y2; // 不能将类型“Empty1<string>”分配给类型“Empty1<number>”。不能将类型“string”分配给类型“number”。
+  // 未指定泛型类型的泛型参数时, 会将所有泛型参数当做 any 比较
+  let identity = function<T>(x:T):T {
+    return x;
+  }
+  let reverse = function<U>(x:U):U {
+    return x;
+  }
+  identity = reverse;
 
 
 

@@ -884,3 +884,425 @@ class LocationClass {
     //let pickCard24 = pickCard2([{suit:'diamonds'}]); // Argument of type '{ suit: string; }[]' is not assignable to parameter of type 'number'.
 
 ```
+#### 泛型
+
+```typescript
+    // 泛型例子
+    import get = Reflect.get;
+
+    function identity(arg: number):number {
+        return arg;
+    }
+    function identity1(arg: any):any {
+        return arg;
+    }
+    // 使用类型变量 T 收集输入的参数类型,返回相同的类型
+    function identity2<T>(arg:T):T {
+        return arg;
+    }
+    let output = identity2<string>('myString');
+    let output1:string = identity2('myString');
+    //let output2:number = identity2('myString'); // Type '"myString"' is not assignable to type 'number'.
+
+
+    // 使用泛型变量
+    function loggingIdentity<T>(arg: T):T {
+        //console.log(arg.length); // Property 'length' does not exist on type 'T'.
+        return arg;
+    }
+    // function loggingIdentity1<T>(arg: T[]):T[] {
+    function loggingIdentity1<T>(arg: Array<T>):Array<T> {
+        console.log(arg.length);
+        return arg;
+    }
+
+
+    // 泛型类型
+    // 可以使用不同的泛型参数名,只要数量和使用方式可以对应
+    let myIdentity: <U>(arg:U) => U = identity2;
+    // 也可以使用带有调用签名的对象字面量来定义的泛型函数
+    let myIdentity1: {<T>(args:T):T} = identity2;
+
+    // 泛型接口
+    interface GenericIdentityFn {
+        <T>(arg:T):T;
+    }
+    let myIdentity2:GenericIdentityFn = identity2;
+
+    // 指定泛型类型
+    interface GenericIdentityFn1<T> {
+        (arg: T): T;
+    }
+    let myIdentity3:GenericIdentityFn1<number> = identity2;
+    identity2('xx');
+    //myIdentity3('xx'); // Argument of type '"xx"' is not assignable to parameter of type 'number'.
+
+
+    // 泛型类(无法创建泛型枚举和泛型命名空间)
+    class GenericNumber<T> {
+        zeroValue:T;
+        add:(x: T, y:T) => T;
+    }
+    let myGenericNumber = new GenericNumber<number>();
+    myGenericNumber.zeroValue = 0;
+    myGenericNumber.add = function (x, y) {
+        return x+y;
+    };
+
+    let myGenericNumberString = new GenericNumber<string>();
+    myGenericNumberString.zeroValue = '';
+    myGenericNumberString.add = function (x, y) {
+        return x+y;
+    };
+    console.log(myGenericNumberString.add(myGenericNumberString.zeroValue, 'test'));
+
+
+    // 泛型约束
+    interface Lengthwise {
+        length:number
+    }
+    // 约束输入类型至少包含 .length 属性, 若不包含则报错
+    function loggingIdentity2<T extends Lengthwise>(arg:T):T {
+        console.log(arg.length);
+        return arg;
+    }
+    //loggingIdentity2(3); // Argument of type '3' is not assignable to parameter of type 'Lengthwise'.
+
+
+    // 泛型约束中使用类型参数
+    function getProperty<T, K extends keyof T>(obj: T, key: K) {
+        return obj[key];
+    }
+    let x = {a:1, b:2, c:3, d:4};
+    getProperty(x, 'a');
+    //getProperty(x. 'm'); //Identifier expected.
+
+
+    // 在泛型中使用类类型
+    // 泛型创建工厂函数时, 需引用构造函数的类类型
+    function create<T>(c:{new (): T}): T {
+        return new c();
+    }
+
+    // 例如
+    class BeeKeeper {
+        hasMask: boolean;
+    }
+    class ZooKeeper {
+        nameTag: string;
+    }
+    class Animal {
+        numLegs: number;
+    }
+    class Bee extends Animal{
+        keeper: BeeKeeper;
+    }
+    class Lion extends Animal {
+        keeper: ZooKeeper;
+    }
+    // 使用原型属性推断并约束构造函数与类实例的关系
+    function createInstance<A extends Animal>(c: new() => A): A {
+        return new c();
+    }
+    // 输入类型创建出的实例与输入类型保持一致, 可以直接进行类型推断
+    let nameTag = createInstance(Lion).keeper.nameTag;
+    let hasMask = createInstance(Bee).keeper.hasMask;
+```
+#### 枚举
+```typescript
+ // 数字枚举
+    enum Direction {
+        Up = 1,
+        Down, // 2
+        Left, // 3
+        Right // 4
+    }
+    enum Direction1 {
+        Up ,    // 0
+        Down,   // 1
+        Left,   // 2
+        Right   // 3
+    }
+    // 枚举使用
+    enum Response {
+        No = 0,
+        Yes = 1,
+    }
+    function respond(recipient: string, message:Response ): void {
+
+    }
+    respond('princess caroline', Response.Yes);
+
+    // 不带初始化器的枚举或者被放在第一的位置，或者被放在使用了数字常量或其它常量初始化了的枚举后面
+    function getSomeValue():number {
+        return 1;
+    }
+    enum E {
+        A = getSomeValue(),
+        // B, // Enum member must have initializer.
+    }
+    enum E1 {
+        B,
+        A = getSomeValue(),
+    }
+
+    // 字符串枚举, 无自增长行为, 每个成员都需要初始化
+    enum Direction2 {
+        Up = 'UP',
+        Down = 'DOWN',
+        Left = 'LEFT',
+        Right = 'RIGHT'
+    }
+
+    // 异构枚举(不建议)
+    enum BooleanLikeHeterogeneousEmum {
+        No = 0,
+        Yes = 'YES'
+    }
+
+    // 计算的和常量成员
+    enum E2 {
+        X // 0
+    }
+    enum E3 {
+        X,  // 0
+        Y,  // 1
+        Z   // 2
+    }
+    enum E4 {
+        X=1,    // 1
+        Y,      // 2
+        Z,      // 3
+    }
+    // 计算类型
+    enum FileAccess {
+        None,
+        Read = 1 << 1,
+        Write = 1 << 2,
+        ReadWrite = Read | Write,
+        G = '123'.length
+    }
+
+    // 联合枚举, 与枚举成员的类型
+    enum ShapeKind {
+        Circle,
+        Square
+    }
+    interface Circle {
+        kind: ShapeKind.Circle;
+        radius: number;
+    }
+    interface Square {
+        kind: ShapeKind.Square;
+        sideLength: number;
+    }
+    let c: Circle = {
+        //kind: ShapeKind.Square, // Type 'ShapeKind.Square' is not assignable to type 'ShapeKind.Circle'.
+        kind: ShapeKind.Circle,
+        radius: 100,
+    };
+    enum E5 {
+        Foo,
+        Bar
+    }
+    function f(x: E5) {
+        // x 是 E5枚举, 不是 E5.Foo 就是 E5.Bar, 所以表达式恒为真
+        // if (x !== E5.Foo || x !== E5.Bar) {}
+        // This condition will always return 'true' since the types 'E5.Foo' and 'E5.Bar' have no overlap.
+    }
+
+    // 运行时枚举
+    enum E6 {
+        X, Y, Z
+    }
+    function f1(obj: { X: number }) {
+        return obj.X;
+    }
+    f1(E6); // E6, 有个属性 X 符合 f1 参数类型
+
+    // 反向映射(不会为字符串类型的枚举成员生成反向映射)
+    enum Enum {
+        A
+    }
+    let a = Enum.A;
+    let nameOfA = Enum[a];
+    console.log(nameOfA); // "A"
+
+    // const 枚举(const 枚举会在编译阶段被删除, 只能使用常量枚举表达式, 其成员在使用的地方会被内联起来)
+    const enum Enum1 {
+        A = 1,
+        B = A * 2
+    }
+    const enum Enum2 {
+        Up,
+        Down,
+        Left,
+        Right
+    }
+    let directions = [Enum2.Up, Enum2.Down, Enum2.Left, Enum2.Right];
+    // build result:  let directions = [0 /* Up */, 1 /* Down */, 2 /* Left */, 3 /* Right */];
+
+    // 外部枚举, 用来描述已存在的枚举类型的形状
+    // 在正常的枚举里，没有初始化方法的成员被当成常量成员。 对于非常量的外部枚举而言，没有初始化方法时被当做需要经过计算的
+    declare enum Enum3 {
+        A = 1,
+        B,
+        C = 2
+    }
+```
+
+#### 类型推断
+```typescript
+// 变量x的类型被推断为数字。 这种推断发生在初始化变量和成员，设置默认参数值和决定函数返回值时
+    let x = 3;
+
+    // 最佳通用类型
+    let y = [0, 1, 'string']; // 推断为 (string | number)[]
+    class Animal {}
+    class Rhino extends Animal{}
+    class Elephant extends Animal{}
+    class Snake extends Animal {}
+    class Lion extends Animal{}
+    // 推断为联合类型 (Rhino | Elephant | Snake) []
+    let zoo = [new Rhino(), new Elephant(), new Snake()];
+    // 强制指定类型
+    let zoo1: Animal[] = [new Rhino(), new Elephant(), new Snake()];
+
+
+    // 上下文归类
+    // 根据左侧表达式推断右侧函数参数类型
+    window.onmousedown = function (mouseEvent) {
+        console.log(mouseEvent.button);
+        // console.log(mouseEvent.kangaroo); // Property 'kangaroo' does not exist on type 'MouseEvent'.
+    };
+    window.onscroll = function (uiEvent) {
+        // console.log(uiEvent.button); // Property 'button' does not exist on type 'Event'.
+    };
+
+    // 无法推断时, 隐式 any
+    const handler = function (uiEvent) {
+        console.log(uiEvent.button);
+    };
+
+    // 强制类型赋值覆写上下文类型
+    window.onscroll = function (uiEvent: any) {
+        console.log(uiEvent.button) // undefined;
+    };
+
+    function createZoo():Animal[] {
+        return [new Rhino(), new Elephant(), new Snake()];
+    }
+```
+
+#### 类型兼容
+```typescript
+// ts 类型兼容基于结构子类型
+  interface Named {
+    name: string;
+  }
+  class Person {
+    name: string
+  }
+  let p: Named;
+  p = new Person();
+  // p = {}; // Property 'name' is missing in type '{}' but required in type 'Named'
+
+  // 基本规则: 如果x要兼容y，那么y至少具有与x相同的属性
+  let x: Named;
+  let y = {
+    name: 'alice',
+    location: 'seattle'
+  }
+  x = y;
+  function greet(n: Named): void {
+    console.log(`hello ${n.name}`);
+  } 
+  greet(y);
+
+  // 比较两个函数
+  let f1:(a: number) => 0;
+  let f2:(a: number, s: string) => 0;
+  // f1 的参数列表,在f2 中都能找到对应类型的参数
+  f2 = f1;
+  // f2 的参数 s 在 f1 中找不到对应类型参数, 所以报错
+  //f1 = f2; // 不能将类型“(a: number, s: string) => 0”分配给类型“(a: number) => 0“
+  
+  // 如:
+  let items = [1, 2, 3];
+  items.forEach((item, index, array) => console.log(item));
+  items.forEach((item) => console.log(item));
+  // 返回值
+  let f3 = () => ({name: 'alice'});
+  let f4 = () => ({name: 'alice', location: 'seattle'});
+  f3 = f4;
+  // f4 返回值需要一个 location 属性, f3 返回值没有
+  //f4 = f3; // 不能将类型“() => { name: string; }”分配给类型“() => { name: string; location: string; }”。Property 'location' is missing in type '{ name: string; }' but required in type '{ name: string; location: string; }'
+
+
+  // 函数参数双向协变
+  enum EventType {
+    Mouse, Keyboard,
+  }
+  interface Event {
+    timestamp: number;
+  }
+  interface MouseEvent extends Event {
+    x: number;
+    y: number;
+  }
+  interface KeyEvent extends Event {
+    keyCode: number;
+  }
+  function listenEvent(eventType:EventType, handle:(n:Event)=>void) {
+
+  }
+  // 最常用
+  listenEvent(EventType.Mouse, (e:MouseEvent):void => console.log(`${e.x},${e.y}`));
+  // 也可以
+  listenEvent(EventType.Mouse, (e: Event):void => console.log(`${(<MouseEvent>e).x}, ${(<MouseEvent>e).y}`));
+  listenEvent(EventType.Mouse, <(e:Event)=>void>((e: MouseEvent) => console.log(`${e.x}, ${e.y}`)));
+
+  // number 不是 event 的子类, 故不能转换
+  //listenEvent(EventType.Mouse, (e:number) => console.log(e)); // 类型“(e: number) => void”的参数不能赋给类型“(n: Event) => void”的参数。参数“e”和“n” 的类型不兼容。不能将类型“Event”分配给类型“number”
+
+
+  // 可选参数和剩余参数
+  function invokeLater(args: any[], callback: (...args: any[]) => void) {
+    setTimeout(() =>callback(...args), 1);
+  }
+  invokeLater([1, 2], (x, y) => console.log(`${x}, ${y}`));
+  invokeLater([1, 2], (x?, y?) => console.log(`${x}, ${y}`));
+
+  // 枚举, 枚举类型与数字类型互相兼容, 不同枚举类型之间不兼容
+  enum Status {Ready, Waitting};
+  enum Color { Red, Blue, Green};
+  let status = Status.Ready;
+  status = 1;
+  let status1 = 1;
+  status1 = Status.Ready;
+  //status = Color.Green; // 不能将类型“Color.Green”分配给类型“Status”。
+  
+  // 泛型
+  interface Empty<T> {
+
+  }
+  let x1: Empty<number>;
+  let y1: Empty<string>;
+  // 二者结构相同,可以赋值
+  x1 = y1;
+  interface Empty1<T> {
+    data: T  
+  }
+  let x2: Empty1<number>;
+  let y2: Empty1<string>;
+  // 此时 data 属性的类型不一致, 故不能替换
+  // x2 = y2; // 不能将类型“Empty1<string>”分配给类型“Empty1<number>”。不能将类型“string”分配给类型“number”。
+  // 未指定泛型类型的泛型参数时, 会将所有泛型参数当做 any 比较
+  let identity = function<T>(x:T):T {
+    return x;
+  }
+  let reverse = function<U>(x:U):U {
+    return x;
+  }
+  identity = reverse;
+```
