@@ -432,8 +432,8 @@ namespace AdvancedTypesNameSpace {
   }
 
   // 有条件类型
-  declare function f2<T extends boolean>(x: T): T extends true ? string : number;
-  let x = f2(Math.random() < 0.5); // let x: string | number
+  declare function f22<T extends boolean>(x: T): T extends true ? string : number;
+  let x = f22(Math.random() < 0.5); // let x: string | number
 
   type TypeName<T> = 
    T extends string ? 'string' :
@@ -456,9 +456,9 @@ namespace AdvancedTypesNameSpace {
      propB: boolean;
    }
 
-   declare function f3<T>(x:T):T extends Foo ? string : number;
+   declare function f33<T>(x:T):T extends Foo ? string : number;
    function foo1<U>(x:U) {
-      let a = f3(x);
+      let a = f33(x);
       let b:string | number = a;
    }
 
