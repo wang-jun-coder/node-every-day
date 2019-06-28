@@ -467,7 +467,131 @@ namespace AdvancedTypesNameSpace {
    type T12 = TypeName<string | string[] | undefined>; // type T12 = "string" | "undefined" | "object"
    type T11 = TypeName<string[] | number[]>; // type T11 = "object"
 
+   type BoxedValue<T> = {value: T};
+   type BoxedArray<T> = {array: T[]};
+   type Boxed<T> = T extends any[] ? BoxedArray<T[number]> : BoxedValue<T>;
+   type T20 = Boxed<string>;  // type T20 = {value: string;}
+   type T21 = Boxed<number[]>; //  type T21 = {array: number[];}
+   type T22 = Boxed<string | number[]>; //type T22 = BoxedValue<string> | BoxedArray<number>
+
+   // 过滤联合类型
+   type Diff<T, U> = T extends U ? never : T;
+   type Filter<T, U> = T extends U ? T : never;
+   type T30 = Diff<'a' | 'b' | 'c' | 'd', 'a' | 'c' | 'f'>; // type T30 = "b" | "d"
+   type T31 = Filter<'a' | 'b' | 'c' | 'd', 'a' | 'c' | 'f'>; // type T31 = "a" | "c"
+   type T32 = Diff<string | number | (() => void), Function>; // type T32 = string | number
+   type T33 = Filter<string | number | (() => void), Function>; // type T33 = () => void
+
+   type NonNullable<T> = Diff<T, null | undefined>; // type NonNullable<T> = T extends null | undefined ? never : T
+   type T34 = NonNullable<string | number | undefined>; // type T34 = string | number
+   type T35 = NonNullable<string | string[] | null | undefined>; // type T35 = string | string[]
+
+   function f2<T>(x: T, y:NonNullable<T>) {
+      x=y;
+      //y=x; // 不能将类型“T”分配给类型“Diff<T, null | undefined>”。ts(2322)
+   }
+   function f3<T extends string | undefined>(x: T, y:NonNullable<T>) {
+     x = y;
+     //y = x; // 不能将类型“T”分配给类型“Diff<T, null | undefined>”。
+     //let s1: string = x; // 不能将类型“T”分配给类型“string”。
+     let s2: string = y;
+   }
+
+   // 有条件类型与映射类型结合
+   type FunctionPropertyNames<T> = {
+     [K in keyof T]: T[K] extends Function ? K : never
+    }[keyof T];
+    type FunctionProperties<T> = Pick<T, FunctionPropertyNames<T>>;
+    type NonFunctionPropertyNames<T> = {
+      [K in keyof T] : T[K] extends Function ? never : K;
+    }[keyof T];
+    type NonFunctionProperties<T> = Pick<T, NonFunctionPropertyNames<T>>;
+
+    interface Part {
+      id: number;
+      name: string;
+      subparts: Part[];
+      updatePart(newName: string):void;
+    }
+    type T40 = FunctionPropertyNames<Part>; // type T40 = "updatePart"
+    type T41 = NonFunctionPropertyNames<Part>; // type T41 = "id" | "name" | "subparts"
+    type T42 = FunctionProperties<Part>; // type T42 = {updatePart: (newName: string) => void;}
+    type T43 = NonFunctionProperties<Part>; //  type T43 = {id: number;name: string;subparts: Part[];}
+
+    // 和联合类型交叉类型相似, 有条件类型不允许递归自己
+    //type ElementType<T> = T extends any[] ? ElementType<T[number]> : T; // 类型别名“ElementType”循环引用自身。ts(2456)
+
+    // 有条件类型中的类型推断
+    type ReturnType1<T> = T extends (...args: any[]) => infer R ? R : any;
+    type Unpacked<T> = 
+      T extends (infer U)[] ? U :
+      T extends (...args: any[]) => infer U ? U :
+      T extends Promise<infer U> ? U :
+      T;
+    type T50 = Unpacked<string>; // type T50 = string
+    type T51 = Unpacked<string[]>; // type T51 = string
+    type T52 = Unpacked<() => string>; // type T52 = string
+    type T53 = Unpacked<Promise<string>>; // type T53 = string
+    type T54 = Unpacked<Promise<string>[]>; // type T54 = Promise<string>
+    type T55 = Unpacked<Unpacked<Promise<string>[]>>; // type T55 = string
+    // 协变位置上，同一个类型变量的多个候选类型会被推断为联合类型
+    type Foo2<T> = T extends { a: infer U, b: infer U} ? U : never;
+    type T60 = Foo2<{a: string, b: string }>; // type T60 = string
+    type T61 = Foo2<{a: number, b: string}>; // type T61 = string | number
+    // 抗变位置上，同一个类型变量的多个候选类型会被推断为交叉类型：
+    type Bar<T> = T extends { a: (x: infer U) => void, b: (x: infer U)=>void} ? U : never;
+    type T70 = Bar<{
+      a: (x: string)=>void, b:(x: string)=>void;
+    }>;// type T70 = string
+    type T71 = Bar<{
+      a: (x: string)=>void, b:(x: number)=>void;
+    }>;// type T71 = string & number
+
+    // 多个调用签名(如: 函数重载), 用最后的签名推断(最自由)
+    declare function foo2(x:string):number;
+    declare function foo2(x: number):string;
+    declare function foo2(x:string|number):string|number;
+    type T80 = ReturnType1<typeof foo2>; // type T80 = string | number
+    // 无法再正常类型的参数的约束子语句中使用 infer
+    // 仅条件类型的 "extends" 子句中才允许 "infer" 声明。ts(1338)
+    //type ReturnType2<T extends (...args: any[])=> infer R> = R;
+    // 但是可以这样达到目的
+    type AnyFunction = (...args: any[]) => any;
+    type ReturnType2<T extends AnyFunction> = T extends (...args: []) => infer R ? R : any;
+
+    // TS 预定义的有条件类型
+    // 从T 中剔除可以赋值给 U 的类型
+    type T00 = Exclude<'a' | 'b' | 'c' | 'd', 'a' | 'c' | 'f'>; // type T00 = "b" | "d"
+    // 从 T 中提取可以赋值给 U 的类型
+    type T01 = Extract<'a' | 'b' | 'c' | 'd', 'a' | 'c' | 'f'>; // type T01 = "a" | "c"
+    type T02 = Exclude<string | number | (()=>void), Function>; // type T02 = string | number
+    type T03 = Extract<string | number | (()=>void), Function>; // type T03 = () => void
+    type T04 = NonNullable<string | number | undefined>; // type T04 = string | number
+    type T05 = NonNullable<(()=>string) | string[] | null | undefined>; // type T05 = (() => string) | string[]
+    
+    // ReturnType & InstanceType
+    function f4(s: string) {
+      return {a: 1, b: s};
+    }
+    class C1 {
+      x = 0;
+      b = 0;
+    }
+    type T011 = ReturnType<() => string>;
+    type T012 = ReturnType<(s: string) => void>;
+    type T013 = ReturnType<(<T>()=>T)>; // type T013 = unknown
+    type T014 = ReturnType<<T extends U, U extends number[]>()=>T>; // type T014 = number[]
+    type T015 = ReturnType<typeof f4>;  // type T015 = {a: number;b: string;}
+    type T016 = ReturnType<any>; 
+    //type T017 = ReturnType<string>;  // 类型“string”不满足约束“(...args: any) => any”。ts(2344)
+    //type T018 = ReturnType<Function>; // 类型“Function”不满足约束“(...args: any) => any”。
 
 
+    type T021 = InstanceType<typeof C1>; // type T021 = C1
+    type T022 = InstanceType<any>;  
+    type T023 = InstanceType<never>; 
+    //type T024 = InstanceType<string>; // 类型“string”不满足约束“new (...args: any) => any”。ts(2344)
+    //type T025 = InstanceType<Function>; // 类型“Function”不满足约束“new (...args: any) => any”。
+    //type T026 = InstanceType<String>; // 类型“String”不满足约束“new (...args: any) => any”。
 
 }
