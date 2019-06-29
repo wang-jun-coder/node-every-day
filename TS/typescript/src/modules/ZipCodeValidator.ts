@@ -1,0 +1,13 @@
+import { StringValidator } from './StringValidator'
+
+const numberRegexp = /^[0-9]+$/
+// export class ZipCodeValidator implements StringValidator {
+// class ZipCodeValidator implements StringValidator {
+export default class ZipCodeValidator implements StringValidator {
+  isAcceptable(s: string) {
+    return s.length == 5 && numberRegexp.test(s);
+  }
+}
+
+export { ZipCodeValidator };
+export { ZipCodeValidator as mainValidator}; 
