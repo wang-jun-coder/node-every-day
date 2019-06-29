@@ -1,3 +1,6 @@
+/// <refrence> node.d.ts
+/// <reference types="./math-lib" />
+
 import { ZipCodeValidator, ZipCodeValidator as ZCV } from './ZipCodeValidator';
 let myValidator = new ZipCodeValidator();
 myValidator = new ZCV();
@@ -33,7 +36,7 @@ if(needZip1) {
 
 
 // 外部模块
-/// <refrence> node.d.ts
+
 import * as URL from "url";
 let myUrl = URL.parse("http://www.test.com");
 
@@ -45,7 +48,7 @@ import fileContent from "./xyz.txt!text";
 import data from "json!http://test.com/data.json";
 console.log(data, fileContent);
 
-/// <refrence> math-lib.d.ts
+
 // import { isPrime } from "math-lib";
 // isPrime(2);
 // import * as mathLib from "math-lib";

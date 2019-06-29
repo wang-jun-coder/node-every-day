@@ -27,7 +27,7 @@ window.onscroll = function (uiEvent) {
 };
 
 // 无法推断时, 隐式 any
-const handler = function (uiEvent) {
+const handler = function (uiEvent:any) {
     console.log(uiEvent.button);
 };
 

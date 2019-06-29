@@ -7,7 +7,7 @@
 // 若定制一个修饰器如何应用到一个声明上, 需要一个装饰器工厂函数
 // 装饰器工厂函数就是一个简单的函数, 返回一个表达式供装饰器在运行时使用
 function color(value: string) { // 装饰器工厂
-  return function(target) { // 装饰器
+  return function(target:object) { // 装饰器
 
   }
 }

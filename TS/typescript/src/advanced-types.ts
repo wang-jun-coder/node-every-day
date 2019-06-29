@@ -1,19 +1,18 @@
 
 
 // 交叉类型, 将多个类型合并为一个类型, 包好了所需所有类型的特性
-function extend <First, Second>(first: First, second: Second): First & Second {
+function extend <First extends object, Second extends object>(first: First, second: Second): First & Second {
   
-  const result: Partial<First & Second> = {};
+  // const result: Partial<First & Second> = {};
+  const result: any = {};
   for (const prop in first) {
-    // if (first.hasOwnProperty(prop)) {
-    if (first[prop] !== undefined) {
+    if (first.hasOwnProperty(prop)) {
         (<First>result)[prop] = first[prop];
     }
   }
   for (const prop of Object.getOwnPropertyNames(second)) {
-      // if (second.hasOwnProperty(prop)) {
-        if (second[prop] !== undefined) {
-          (<Second>result)[prop] = second[prop];
+      if (second.hasOwnProperty(prop)) {
+          result[prop] = (<any>second)[prop];
       }
   }
   return <First & Second>result;
