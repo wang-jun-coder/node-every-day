@@ -22,7 +22,7 @@ for (const value of list) {
   console.log(value); // a b c
 }
 // for in 可以操作任何对象, 提供了查看对象属性的一种方法, for of 则关注迭代对象的值
-let pets = new Set(['cat', 'dog', 'Hamster']);
+let pets:any = new Set(['cat', 'dog', 'Hamster']);
 pets['species'] = 'mammals';
 for (const key in pets) {
   console.log(key); // species
