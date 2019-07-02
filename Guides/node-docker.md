@@ -71,13 +71,16 @@ npm-debug.log
 docker build -t wj/node-web-app .
 
 # 指定本机 3001 映射到容器的 3000 端口
-docker run -p 3001:3000 -d wj/node-web-app --name app
+docker run --name app -p 3001:3000 -d wj/node-web-app 
 
 # 进入容器
 docker exec -it app /bin/bash
 
 # 测试访问
 curl -i localhost:3001
+
+# 关闭
+docker stop app && docker rm app 
 ```
 
 
