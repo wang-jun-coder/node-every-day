@@ -65,4 +65,5 @@ typings/
 **/node_modules/**
 **/latest/**
 **/build/**
-**/wj.config
+**/*wj.config
+Note/oss-upload/.wj.config.js
