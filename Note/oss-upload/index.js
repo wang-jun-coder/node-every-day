@@ -62,11 +62,14 @@ const streamPieOss = async () => {
             customResponse: true,
             method: "GET"
         };
-        const result = await oss.urllib.request('http://wj-blog.oss-cn-beijing.aliyuncs.com/object-name', param);
-        stream = result.res;
+        // const result = await oss.urllib.request('http://wj-blog.oss-cn-beijing.aliyuncs.com/object-name', param);
+        // stream = result.res;
 
         // let result = await oss.getStream('object-name');
         // stream = result.stream;
+
+        stream = request('http://wj-blog.oss-cn-beijing.aliyuncs.com/object-name');
+
     } catch (e) {
         console.log(e);
     }
@@ -84,9 +87,9 @@ const streamPieOss = async () => {
 
     // await streamUpload();
 
-    await streamPipeMp(); // error
+    // await streamPipeMp(); // error
 
-    // await streamPieOss();
+    await streamPieOss();
 
 })().catch(e => {
     console.log(e);
