@@ -5,7 +5,7 @@ const PORT = 3000;
 
 const app = new Koa();
 app.use(async ctx => {
-    ctx.body = "this is response from docker";
+    ctx.body = "this is response from minikube";
 });
 
 
