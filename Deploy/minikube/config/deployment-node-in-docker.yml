@@ -1,0 +1,16 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: node-in-docker-deployment
+spec:
+  replicas: 4 
+  template: 
+    metadata:
+      labels:
+        app: node-in-docker
+    spec:
+      containers:
+      - name: node-in-docker
+        image: 192.168.31.51:5000/node-in-docker:v1.0.1
+        ports:
+        - containerPort: 3000
