@@ -66,9 +66,9 @@ minikube stop
 ](https://kubernetes.io/zh/docs/tasks/run-application/run-stateless-application-deployment/)  
 [invalid object doesn't have additional properties](https://stackoverflow.com/questions/55417410/kubernetes-create-deployment-unexpected-schemaerror)
 
-deployment-node-in-docker.yml
+deployment-node-in-docker.yaml
 
-```yml
+```yaml
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -86,7 +86,7 @@ spec:
         ports:
         - containerPort: 3000
 ```
-service-node-in-docker.yml
+service-node-in-docker.yaml
 
 ```yml
 kind: Service
@@ -105,9 +105,9 @@ spec:
 
 ```bash
 # 创建、更新 deployment
-kubectl create -f ./deployment-node-in-docker.yml
-kubectl apply -f deployment-node-in-docker.yml
-kubectl create -f ./service-node-in-docker.yml
+kubectl create -f ./deployment-node-in-docker.yaml
+kubectl apply -f deployment-node-in-docker.yaml
+kubectl create -f ./service-node-in-docker.yaml
 ```
 ### 可视化部署
 
