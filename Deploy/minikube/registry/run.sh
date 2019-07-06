@@ -1,3 +1,5 @@
+
+# 使用此命令在本地创建一个私有仓库，供 minikube 使用
 docker run \
 --name registry-local \
 -d \
