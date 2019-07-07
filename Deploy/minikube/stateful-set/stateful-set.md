@@ -30,7 +30,7 @@ kubectl get statefulset -l app=nginx
 for i in 0 1; do kubectl exec web-$i -- sh -c 'hostname'; done
 
 # 以终端的形式运行一个 pod， 在内部可执行 nslookup 查询对应主机的 dns 解析地址（busybox 新版本解析出错，这里换回老版本）
-kubectl run -it --image busybox:1.28.3 dns-test --restart=Never --rm /bin/sh
+kubectl run -it --image busybox:1.28.3 dns-test --restart=Never --rm 
 nslookup web-0.nginx 
 
 # 监视并列出 app=nginx 的 pod
