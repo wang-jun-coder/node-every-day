@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "dev": "ZOOKEEPER_HOST=127.0.0.1 ZOOKEEPER_PORT=2181 node service.js"
+  },
+  "dependencies": {
+    "node-zookeeper-client": "^1.0.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "@types/node-zookeeper-client": "^0.2.6"
+  }
+}

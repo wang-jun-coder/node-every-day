@@ -1,0 +1,1 @@
+minikube start --insecure-registry 192.168.31.51:5000
