@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+    <title>waterfall</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        .waterfall {
+            margin: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+        .column {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 5px;
+        }
+
+        .item {
+            width: 100%;
+        }
+        img {
+            width: 100%;
+        }
+        .desc {
+            height: 40px;
+            background: cyan;
+        }
+
+
+
+    </style>
+
+</head>
+<body>
+
+<div class="waterfall">
+</div>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+<script>
+
+const source = [{"thumb":"https://itbour-back.oss-cn-hangzhou.aliyuncs.com/image/U126431/2019/07/05/104914358_xfXGHEpw2yH3tdyMsj80","w":1032,"h":612},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/142825251_Edz1XWH8MfrxdFqFKlSM/0.jpg","w":720,"h":1280},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/143007910_qE7maCBx0a7RNdgS3DIl/0.jpg","w":720,"h":1280},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/142635662_kRwh4ivURUWhrAltI2tC/0.jpg","w":720,"h":1280},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/144346328_B77tg7hcGWv4ao4OKjGJ/0.jpg","w":800,"h":800},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/115232391_02ypwveNA9bIYjJVSPAf/0.jpg","w":900,"h":383},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/114014446_Mx8gC685ISAMZl4oQC7j/0.jpg","w":800,"h":800}];
+const array = [];
+for (let i = 0; i < 1000; i++) {
+
+    array.push(source[Math.ceil(Math.random()*source.length-1)]);
+}
+
+
+const column = 3;
+const dataArray = [];
+
+const root = $(".waterfall");
+for (let i=0; i<column; i++){
+    root.append(`<div class="column ${i}"></div>`);
+    dataArray.push({
+        totalH: 0,
+        index: i,
+        elm: $(`.waterfall .${i}`)
+    })
+}
+const minObj = ()=> {
+    let ret = null;
+    dataArray.forEach((obj, i) => {
+        if (i === 0 || obj.totalH < ret.totalH) ret = obj;
+    });
+    console.log(`min index is ${ret.index}`);
+    return ret;
+};
+// 动态拼接
+array.forEach((obj, i) => {
+    const html = `
+                <div class="item" index="${i}">
+                    <img class="pic" src="${obj.thumb}"/>
+                    <div class="desc">
+                        this is item index: ${i};
+                    </div>
+                </div>`;
+    console.log(`i: ${i}`);
+    const model = minObj();
+    model.elm.append(html);
+    const cellW = (window.innerWidth - 6 * 5)/ column;
+    const cellH = (obj.h * cellW / obj.w) + 40 + 3;
+    console.log(`cell: ${i} -> ${cellW} ${cellH}`);
+    model.totalH += cellH;
+});
+
+const throttle = (fn, duration=0) => {
+    let last = 0;
+    let timer = null;
+
+    function throttled() {
+        const now = Date.now();
+        if (now - last > duration) {
+            fn();
+            last = now;
+        } else {
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+            timer = setTimeout(function () {
+                fn();
+            }, duration);
+        }
+    }
+    return throttled;
+};
+
+
+const windowHeight = window.innerHeight;
+document.addEventListener('scroll', throttle(() => {
+    $('.item').each( function (i) {
+        const rect = this.getBoundingClientRect();
+        if (rect.bottom < - 2 * windowHeight || rect.top > 2 *windowHeight) {
+            $(this).css({
+                visibility: 'hidden',
+                height: rect.height
+            });
+            $(this).empty();
+        } else {
+            $(this).css({
+                visibility: 'visible'
+            });
+            if ($(this).children().length === 0) {
+                const modelIndex =  $(this).attr('index');
+                const obj = array[modelIndex];
+                console.log(modelIndex);
+                const html = `
+                <img class="pic" src="${obj.thumb}"/>
+                    <div class="desc">
+                        this is item index: ${modelIndex};
+                    </div>
+            `;
+                $(this).append(html);
+            }
+        }
+    });
+}, 100))
+
+
+
+</script>
+</body>
+</html>

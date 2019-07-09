@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+    <title>waterfall</title>
+    <style>
+        .waterfall {
+            margin: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+        .column {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 5px;
+        }
+
+        .item {
+            width: 100%;
+        }
+        img {
+            width: 100%;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+<div class="waterfall">
+    <div class="column left"></div>
+    <div class="column middle"></div>
+    <div class="column right"></div>
+</div>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+<script>
+    const source = [{"thumb":"https://itbour-back.oss-cn-hangzhou.aliyuncs.com/image/U126431/2019/07/05/104914358_xfXGHEpw2yH3tdyMsj80","w":1032,"h":612},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/142825251_Edz1XWH8MfrxdFqFKlSM/0.jpg","w":720,"h":1280},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/143007910_qE7maCBx0a7RNdgS3DIl/0.jpg","w":720,"h":1280},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/142635662_kRwh4ivURUWhrAltI2tC/0.jpg","w":720,"h":1280},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/144346328_B77tg7hcGWv4ao4OKjGJ/0.jpg","w":800,"h":800},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/115232391_02ypwveNA9bIYjJVSPAf/0.jpg","w":900,"h":383},{"thumb":"https://itbour-generate.oss-cn-hangzhou.aliyuncs.com/image/U951854/2019/07/04/114014446_Mx8gC685ISAMZl4oQC7j/0.jpg","w":800,"h":800}];
+    const imgArray = [];
+    for (let i = 0; i < 1000; i++) {
+        imgArray.push(source[Math.ceil(Math.random()*source.length-1)]);
+    }
+
+// 动态拼接
+imgArray.forEach((obj, i) => {
+    const html = `
+                <div class="item">
+                    <img class="pic" src="${obj.thumb}"/>
+                    <div class="desc">
+                        this is item index: ${i};
+                    </div>
+                </div>`;
+
+    if (i % 3 === 0) $(".waterfall .left").append(html);
+    else if (i % 3 === 1) $(".waterfall .middle").append(html);
+    else $(".waterfall .right").append(html);
+});
+
+
+</script>
+</body>
+</html>
