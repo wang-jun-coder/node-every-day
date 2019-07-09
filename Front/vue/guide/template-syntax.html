@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <!-- 插值 -->
+    <div id='app'>
+      <p>{{msg}}</p>
+      <p>Using mustaches: {{ rawHtml }}</p>
+      <p>Using v-html directive: <span v-html="rawHtml"></span></p>
+      <div v-bind:id="dynamicId">v-bind:id={{dynamicId}}</div>
+      <button v-bind:disabled="isButtonDisabled">isButtonDisabled</button>
+      <p>{{ msg ? msg : 'this is default msg'}}</p>
+    </div>
+    <script>
+      var app = new Vue({
+        el: '#app',
+        data: {
+          msg: '插值文本',
+          rawHtml: '<span style="color: red">This should be red.</span>',
+          dynamicId: Date.now(),
+          isButtonDisabled: 'disabled', // null 
+        }
+      });
+    </script>
+
+     <!-- 指令 -->
+    <div id="app-1">
+      <a v-bind:href="url">bind url</a>
+      <a v-bind:[attrname]="url">bind url by attr name</a>
+      <!-- 对触发的事件执行 event.preventDefault(此处会阻止表单跳转) -->
+      <form v-on:submit.prevent="onSubmit">
+        <button type="submit">form submit</button>
+      </form>
+
+      <a :href="url">使用缩写绑定属性</a>
+      <a @click="doSomeThing">使用缩写绑定事件</a> 
+
+    </div>
+    <script>
+      var app = new Vue({
+        el: '#app-1',
+        data: {
+          url: 'http://test.com',
+          attrname: 'href'
+        },
+        methods: {
+          onSubmit: function() {
+            console.log('onSubmit');
+          },
+          doSomeThing: function() {
+            console.log('doSomeThing');
+          }
+        },
+      })
+    </script>
+
+  </body>
+</html>
