@@ -1,0 +1,149 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <!-- computed -->
+    <div id="app-1">
+      <p  @click='msgClick'>origin message: "{{ message }}"</p>
+      <p>computed reversed message: "{{reversedMessage}}"</p>
+      <p>computed reversed message by method: "{{reversedMessageMethod()}}"</p>
+      <p>{{now}}</p>
+    </div>
+    <script>
+      var app1 = new Vue({
+        el: '#app-1',
+        data: {
+          message: 'hello'
+        },
+        computed: {
+          reversedMessage: function() {
+            return this.message.split('').reverse().join('');
+          },
+          now: function() {
+            return Date.now();
+          }
+        },
+        methods: {
+          msgClick: function() {
+            this.message = Date.now()+'';
+          },
+          reversedMessageMethod: function() {
+            return this.message.split('').reverse().join('');
+          }
+        },
+
+      })
+    </script>
+
+  <!-- watch -->
+  <div id="app-2">
+    {{fullName}}
+  </div>
+  <script>
+    var app2 = new Vue({
+      el: '#app-2',
+      data: {
+        firstName: 'Foo',
+        lastName: 'Bar',
+        fullName: 'Foo Bar'
+      },
+      watch: {
+        firstName: function(val) {
+          this.fullName = val + ' ' + this.lastName;
+        },
+        lastName: function(val) {
+          this.fullName = this.firstName + ' ' + val;
+        }
+      },
+    })
+  </script>
+  
+  <!-- computed -->
+  <div id="app-3">
+    {{fullName}}
+  </div>
+  <script>
+    var app3 = new Vue({
+      el: '#app-3',
+      data: {
+        firstName: 'Foo',
+        lastName: 'Bar',
+        fullName: 'Foo Bar'
+      },
+      computed: {
+        fullName: {
+          get: function() {
+            return this.firstName + ' ' + this.lastName; 
+          },
+          set: function(newValue) {
+            var names = newValue.split(' ');
+            this.firstName = names[0];
+            this.lastName = names[names.length-1];
+          }
+        }
+      }
+    })
+  </script>
+
+  <!-- watch  -->
+  <div id="app-4">
+    <p>
+      ask a yes/no question:
+      <input v-model="question">
+    </p>
+    <p>{{answer}}</p>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+  <script>
+    function debounce(fn, duration) {
+      let timer = null;
+      return function debounced() {
+        if(timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          fn();
+        }, duration);
+      }
+    }
+    var app4 = new Vue({
+      el: '#app-4',
+      data: {
+        question: '',
+        answer: 'I cannot give you an answer until you ask a question!'
+      },
+      watch: {
+        question: function(newQ, oldQ) {
+          this.answer = 'watting for you to stop typing'
+          this.debouncedGetAnswer();
+        } 
+      },
+      created() {
+        this.debouncedGetAnswer = debounce(this.getAnswer, 500);
+      },
+      methods: {
+        getAnswer: function() {
+          if(this.question.indexOf('?') === -1) {
+            this.answer = 'Questions usually contain a question mark. ;-)'
+            return;
+          }
+          this.answer = 'thinking...';
+          var vm = this;
+          axios.get('https://yesno.wtf/api')
+          .then(function(response){
+            vm.answer = _.capitalize(response.data.answer)
+          })
+          .catch(function(error) {
+            vm.answer = 'Error! Could not reach the API.' + error;
+          })
+
+        }
+      }
+    })
+  </script>
+
+
+</body>
+</html>

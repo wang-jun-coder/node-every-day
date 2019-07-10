@@ -1,0 +1,81 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    .active {
+      background: greenyellow;
+    }
+    .text-danger {
+      color: red;
+    }
+    div{
+      margin: 2px;
+    }
+  </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <div id="app-1">
+      <div v-bind:class='{ active: isActive }'>isActive</div>
+      <div class="static" :class="{active: isActive, 'text-danger': hasError}">hasError</div>
+      <div :class="classObject">classObject</div>
+      <div :class="computedClassObject">classObject</div>
+      <div :class="[activeClass, errorClass]">array class</div>
+      <div :class="[isActive ? activeClass : '', errorClass]">array class and ? </div>
+      <div :class="[{active: isActive}, errorClass]">array class and object </div>
+      <my-component class="active text-danger" text='basic'></my-component>
+      <my-component :class="{active: isActive}" text='bind object'></my-component>
+
+      <div :style="{ color: activeColor, fontSize: fontSize + 'px' }">bind style</div>
+      <div :style="styleObject">bind style object</div>
+      <div :style="[baseStyles, overridingStyles]">bind style by array</div>
+      <div :style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }">
+        <div>flex item1</div>
+        <div>flex item2</div>
+      </div>
+    </div>
+    <script>
+
+      Vue.component('my-component', {
+        props: ['text'],
+        template: '<p class="foo bar">{{text}}</p>'
+      })
+
+      var app1 = new Vue({
+        el: '#app-1',
+        data: {
+          isActive: true,
+          hasError: true,
+          classObject: {
+            active: true,
+            'text-danger': true,
+          },
+          activeClass: 'active',
+          errorClass: 'text-danger',
+          activeColor: 'red',
+          fontSize: 30,
+          styleObject: {
+            color:'red',
+            fontSize: '13px'
+          },
+          baseStyles: {
+            color:'red',
+          },
+          overridingStyles: {
+            fontSize: '13px'
+          }
+        },
+        computed: {
+          computedClassObject: function(){
+            return {
+              active: this.isActive && !this.error,
+              'text-danger': this.error && this.error.type === 'fatal' 
+            }
+          }
+        }
+      })
+    </script>
+
+</body>
+</html>
