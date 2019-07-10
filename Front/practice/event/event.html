@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Event</title>
+
+    <style>
+        div {
+            margin: 10px;
+        }
+
+        .one {
+            background: cyan;
+        }
+        .two {
+            background: orange;
+        }
+        .three {
+            background: aquamarine;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="one" onclick="oneClick(event)">
+    big div
+
+    <div class="two" onclick="twoClick(event)">
+        middle div
+
+        <div class="three" onclick="threeClick(event)">
+            small div
+        </div>
+    </div>
+</div>
+
+<form onsubmit="onSubmit(event)">
+    <button type="submit">on submit</button>
+</form>
+
+<script>
+    function oneClick(event) {
+        console.log(`one click`);
+        console.log(event);
+    }
+    function twoClick(event) {
+        console.log(`two click`);
+        console.log(event);
+        event.preventDefault(); // 由于此处没有默认事件, 对于冒泡无影响, 父控件依然可以收到事件
+    }
+    function threeClick(event) {
+        console.log(`three click`);
+        console.log(event);
+        event.stopPropagation();    // 阻止事件冒泡, 消耗当前事件, 不会在向父控件传递事件
+    }
+
+    function onSubmit() {
+        console.log(`on submit`);
+        event.preventDefault(); // 阻止默认事件 如: form submit 默认跳转
+    }
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,197 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <div id="app-1">
+      <ul>
+        <li v-for='item in items'>
+          {{item.message}}
+        </li>
+      </ul>
+
+      <ul>
+        <li v-for='(item, index) in items'>
+          {{parenntMessage}} - {{index}} - {{item.message}}
+        </li>
+      </ul>
+
+      <button @click='addItmes'>add items</button>
+      <button @click='replaceItems'>replace items</button>
+      <button @click='modifyItme0'>modify items[0]</button>
+      <ul>
+        <li v-for='value in object'>
+          {{value}}
+        </li>
+      </ul>
+
+      <ul>
+        <li v-for='(value, key) in object'>
+          {{key}}: {{value}}
+        </li>
+      </ul>
+
+      <ul>
+        <li v-for='(value, key, index) in object'>
+          {{index}}. {{key}}: {{value}}
+        </li>
+      </ul>
+
+      <div v-for='n in evenNumbers'>{{n}}</div>
+      <div v-for='n in evenMethod(numbers)'>{{n}}</div>
+
+      <div v-for='n in 10'> {{n}}</div>
+
+
+      <ul>
+        <template v-for='item in items'>
+          <li>
+            {{item.message}}
+          </li>
+          <li class="divider" role="presentation">---</li>
+        </template>
+      </ul>
+
+      <ul>
+        <!-- v-for + v-if  v-for 优先级高 -->
+        <li v-for='todo in todos' v-if="!todo.isComplete">
+          {{todo.text}}
+        </li>
+      </ul>
+
+      <ul v-if="todos.length">
+        <li v-for="(todo, index) in todos" :key="index">
+          {{todo.text}}
+        </li>
+      </ul>
+
+
+    </div>
+    <script>
+      var app1 = new Vue({
+        el: '#app-1',
+        data: {
+          parenntMessage: 'parent',
+          items: [
+            {message: 'Foo'},
+            {message: 'Bar'},
+          ],
+          object: {
+            title: 'how to do list in vue',
+            author: 'jane doe',
+            publishAt: '2016-04-10'
+          },
+          userProfile: {
+            name: 'anika'
+          },
+          numbers: [1, 2, 3, 4, 5],
+          todos: [
+            {text: 'todo1', isComplete: false},
+            {text: 'todo2', isComplete: true},
+          ]
+        },
+        methods: {
+          addItmes: function() {
+            this.items.push({message: Date.now()+''});
+          },
+          replaceItems: function() {
+            this.items = this.items.filter(function(item) {
+              return item.message.match(/Foo/);
+            })
+          },
+          modifyItme0: function() {
+            Vue.set(this.items, 0, {message: 'jjjj'});
+            // this.items.splice(0, 1, {message: 'kkk'});
+            // this.$set(this.items, 0, {message: 'xx'});
+          },
+          evenMethod: function(numbers) {
+            return numbers.filter(function(num){
+              return num %2 === 0;
+            }) 
+          }
+        },
+        computed: {
+          evenNumbers: function() {
+            return this.numbers.filter(function(num) {
+              return num %2 === 0;
+            });
+          }
+        },
+      })
+
+      Vue.set(app1.userProfile, 'age', 27);
+      app1.$set(app1.userProfile, 'age', 28);
+
+      app1.userProfile = Object.assign({}, app1.userProfile, {
+        age: 29,
+        favoriteColor: 'vue green'
+      });
+    </script>
+
+
+    <!-- todo demo -->
+    <div id="app-2">
+
+      <form v-on:submit.prevent='addNewTodo'>
+        <label for='new-todo'>add a todo</label>
+        <input type="text"
+          v-model='newTodoText'
+          id='new-todo'
+          placeholder="E.g. Feed the cat"
+        >
+        <button type="submit">Add</button>
+      </form>
+      <ul>
+        <li
+          is='todo-item'
+          v-for="(todo,index) in todos"
+          v-bind:key="todo.id"
+          v-bind:title="todo.title"
+          v-on:remove="todos.splice(index,1)"
+        >
+        </li>
+      </ul>
+    </div>
+    <script>
+      Vue.component('todo-item', {
+        props: ['title'],
+        template: '<li>{{title}}<button v-on:click="$emit(\'remove\')">remove</button></li>',
+      })
+      var app2 = new Vue({
+        el:'#app-2',
+        data: {
+          newTodoText: '',
+          todos:[
+            {
+              title: 'todo1',
+              id: 1
+            },
+            {
+              title: 'todo2',
+              id: 2
+            },
+            {
+              title: 'todo3',
+              id: 3
+            },
+          ],
+          nextTodoId: 4
+        },
+        methods: {
+          addNewTodo() {
+            this.todos.push({
+              id: this.nextTodoId++,
+              title: this.newTodoText,
+            });
+            this.newTodoText = '';
+          }
+        }
+      })
+    </script>
+
+
+  
+</body>
+</html>

@@ -1,0 +1,154 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  
+    <div id="app-1">
+      <form @submit.prevent='onSubmit'>
+        <div class="demo">
+            <input type="text" v-model="inputMsg" placeholder="edit me">
+            <p>input msg is: {{inputMsg}}</p>
+        </div>
+        
+        <div class="demo">
+            <span>multiline message is: </span>
+            <p style="white-space: pre-line"> {{multiMsg}} </p>
+            <textarea v-model="multiMsg" placeholder="add mulitiple lines"></textarea>
+        </div>
+         
+         <div class="demo">
+            <input type="checkbox" id="checkbox" v-model="checked1">
+            <label for="checkbox">{{ checked1 }}</label>
+         </div>
+
+         <div class="demo">
+          <input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
+          <label for="jack">jack</label>
+          <input type="checkbox" id="john" value="John" v-model="checkedNames">
+          <label for="john">john</label>
+          <input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
+          <label for="mike">mike</label>
+          <br>
+          <span>checked names: {{checkedNames}}</span>
+         </div>
+
+         <div class="demo">
+           <input type="radio" id="one" value="One" v-model="picked">
+           <label for="one">one</label>
+           <br>
+           <input type="radio" id="two" value="Two" v-model="picked">
+           <label for="two">two</label>
+           <br>
+           <span>picked: {{picked}}</span>
+         </div>
+
+         <div class="demo">
+           <select v-model="selected">
+             <option disabled value="">请选择</option>
+             <option value="A">A</option>
+             <option value="B">B</option>
+             <option value="C">C</option>
+           </select>
+           <span>selected: {{selected}}</span>
+         </div>
+
+         <div class="demo">
+          <select v-model="multiSelected" multiple style="width: 50px">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+          <br>
+          <span>selected: {{multiSelected}}</span>
+         </div>
+
+        <div class="demo">
+            <select v-model="forSelected">
+                <option v-for="option in options" v-bind:value="option.value">
+                  {{ option.text }}
+                </option>
+              </select>
+              <span>Selected: {{ forSelected }}</span>
+        </div>
+
+        <div class="demo">
+          <input type="radio" v-model="pickedValue" value="a">
+          <span>{{pickedValue}}</span>
+          <input type="checkbox" v-model="toggle">
+          <span>{{toggle}}</span>
+          <select v-model="selectedValue">
+            <option value="abc">ABC</option>
+          </select>
+          <span>{{selectedValue}}</span>
+        </div>
+
+        <div class="demo">
+          <input type="checkbox" v-model="toggleValue" true-value='yes' false-value='no'>
+          {{toggleValue}}
+          <input type="radio" v-model="pickValue" :value='a'>
+          {{pickValue}}
+        </div>
+
+        <div class="demo">
+          <select v-model="selectObjectValue">
+            <option :value="{number: 123}">123</option>
+          </select>
+          <br>
+          <span>{{JSON.stringify(selectObjectValue || {})}}</span>
+        </div>
+
+        <div class="demo">
+          <input v-model.lazy="lazyInput">
+          <p>{{lazyInput}}</p>
+
+          <input v-model.number="age" type="number">
+          {{typeof age }}
+
+          <input v-model.trim="trimMsg">
+          <span style="background-color: cyan">{{trimMsg}}</span>
+        </div>
+
+      </form>
+    </div>
+
+    <script>
+    var app1 = new Vue({
+      el:'#app-1',
+      data: {
+        inputMsg: '',
+        multiMsg: '',
+        checked1: false,
+        checkedNames: [],
+        picked: '',
+        selected: '',
+        multiSelected: [],
+        forSelected: 'A',
+        options: [
+          {text: 'One', value: 'A'},
+          {text: 'Two', value: 'B'},
+          {text: 'Three', value: 'C'}
+        ],
+        pickedValue: '',
+        toggle: true,
+        selectedValue: '',
+        toggleValue: 'no',
+        a: '123',
+        pickValue: '',
+        selectObjectValue: null,
+        lazyInput: '',
+        age: 10,
+        trimMsg: ''
+      },
+      methods: {
+        onSubmit: function() {
+          console.log('onSubmit');
+        }
+      }
+    })
+    </script>
+    
+  
+</body>
+</html>
