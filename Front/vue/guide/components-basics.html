@@ -1,0 +1,113 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+  <div class="app-1">
+    <div class="demo">
+      <button-counter></button-counter>
+      <button-counter></button-counter>
+      <button-counter></button-counter>
+    </div>
+    <div class="demo">
+      <div 
+      :style='{fontSize: postFontSize+"em"}'
+      >
+        <!-- <blog-post 
+          v-for="post in posts" 
+          :post="post" 
+          :key="post.id"
+          @enlarge-text='postFontSize+= $event'
+          >
+        </blog-post>   -->
+        <blog-post 
+          v-for="post in posts" 
+          :post="post" 
+          :key="post.id"
+          @enlarge-text='onEnlargetText'
+          >
+        </blog-post>  
+      </div>
+    </div>
+
+    <div class="demo">
+        <custom-input
+        v-model="searchText"
+        ></custom-input>  
+        <p>{{searchText}}</p>
+    </div>
+
+    <div class="demo">
+
+      <alert-box>
+        something bad happend
+      </alert-box>
+
+    </div>
+
+  </div>
+  <script>
+    Vue.component('button-counter', {
+      data: function() {
+        return {
+          count: 0
+        }
+      },
+      template: '<button @click="count++">you clicked me {{count}} times.</button>'
+    });
+
+    Vue.component('blog-post', {
+      props: ['post'],
+      template: `
+        <div class="blog-post">
+          <h3>{{post.title}}</h3>
+          <button @click='$emit("enlarge-text", 0.1)'>Enlarge text</button>
+          <div v-html="post.contennt"></div>
+        </div>
+      `
+    });
+
+    Vue.component('custom-input', {
+      props: ['value'],
+      template: `
+        <input
+          :value="value"
+          @input="$emit('input', $event.target.value)"
+        >
+        </input>
+      `
+    })
+
+    Vue.component('alert-box', {
+      template: `
+        <div class="demo-alert-box">
+          <strong>Error!</strong>
+          <slot></slot>
+        </div>
+      `
+    })
+
+    var app1 = new Vue({
+      el: '.app-1',
+      data: {
+        postFontSize: 1,
+        posts: [
+          {id: 1, title:'My journey with Vue', contennt: '...content...'},
+          {id: 2, title:'Blogging with Vue', contennt: '...content...'},
+          {id: 1, title:'Why Vue is so fun', contennt: '...content...'},
+        ],
+        searchText: ''
+      },
+      methods: {
+        onEnlargetText(largeAmount) {
+          this.postFontSize += largeAmount;
+        }
+      }
+    });
+
+  </script>
+  
+</body>
+</html>

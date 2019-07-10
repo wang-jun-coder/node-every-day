@@ -1,0 +1,94 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  
+  <div id="app-1">
+    <button @click='counter +=1'>add 1</button>
+    <p>the button above has been clicked {{counter}} times</p>
+    <button @click='greet'>greet</button>
+    <button @click='say("hi")'>say hi</button>
+    <button @click='say("what")'>say what</button>
+    <button @click='warn("form cannot be submitted yet.", $event)'>submit</button>
+
+    <a href="http://test.com" v-on:click.stop="doThis">this is a test</a>
+    <form @submit.prevent='onSubmit'>
+      <button type="submit">submit form</button>
+    </form>
+
+    <a href="http://test.com" @click.stop.prevent='doThat'>stop and prevent</a>
+
+    <form @submit.prevent>
+        <button type="submit">submit form only prevent</button>
+    </form>
+
+    <div @click.capture='doThis'>capture</div>
+    <div @click.self='doThat'>
+      only this do that 
+      <div @click='doThis'>do this</div>
+    </div>
+    <a @click.once='doThis'> do this once</a>
+    <div @scroll.passive='onScroll' style="height: 50px; background-color:cyan; overflow: scroll;">
+      <ol>
+        <li v-for="n in 10" :key="n">{{n}}</li>
+
+      </ol>
+    </div>
+
+    <input type="text" @keyup.enter='onEnter' placeholder="press enter to complete">
+    <input type="text" @keyup.alt.67='clear' placeholder="alt + C">
+
+    <button @click.ctrl='onCtrlTap'>onCtrlTap</button>
+
+  </div>
+  <script>
+    var app1 = new Vue({
+      el: '#app-1',
+      data: {
+        counter: 0,
+        name: 'world'
+      },
+      methods: {
+        greet(evnet) {
+          alert(`hello, ${this.name} !`);
+          if(event) {
+            alert(evnet.target.tagName);
+          }
+        },
+        say(str) {
+          alert(str);
+        },
+        warn(msg, event) {
+          if(event) event.preventDefault();
+          alert(msg);
+        },
+        doThis() {
+          alert('doThis')
+        },
+        onEnter() {
+          alert('onEnter');
+        },
+        doThat() {
+          alert('doThat');
+        },
+        onScroll() {
+          console.log('onScroll');
+        },
+        submit() {
+          console.log(submit);
+        },
+        clear() {
+          console.log('clear');
+        },
+        onCtrlTap() {
+          console.log('onCtrlTap');
+        }
+      }
+    })
+  </script>
+
+
+</body>
+</html>

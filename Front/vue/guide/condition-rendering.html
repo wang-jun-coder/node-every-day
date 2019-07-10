@@ -1,0 +1,78 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <div id="app-1">
+      <h1 v-if='awesome'>vue is awesome</h1>
+      <h1 v-else> oh no</h1>
+
+      <template v-if='ok'>
+        <h2>title</h2>
+        <p>paragraph 1</p>
+        <p>paragraph 2</p>
+      </template>
+
+      <div v-if='Math.random() > 0.5'>
+        now you see me 
+      </div>
+      <div v-else>
+        now you don't
+      </div>
+
+      <div v-if='type === "A"'>
+        A 
+      </div>
+      <div v-else-if='type === "B"'>
+        B
+      </div>
+      <div v-else-if='type === "C"'>
+        C
+      </div>
+      <div v-else>
+        Not A/B/C 
+      </div>
+
+      <template v-if='loginType === "username"'>
+        <label>Username</label>
+        <input type="text" placeholder="enter your username" key='username-input'>
+      </template>
+      <template v-else>
+          <label>Email</label>
+          <input type="text" placeholder="enter your email address" key="email-input">
+      </template>
+      <button @click='toggleLoginType'>toggle login type </button>
+      <div v-show='ok'>hello!</div>
+      <!-- v-show 为 false, 标签也存在,只是 display:none -->
+      <div v-show='false'>hello!</div>
+    </div>
+
+    <script>
+      Vue.component('template', {
+        props: ['text'],
+        template: '<div></div>'
+      })
+      var app1 = new Vue({
+        el: '#app-1',
+        data: {
+          awesome: true,
+          ok: true,
+          type: "D",
+          loginType: 'username'
+        },
+        methods: {
+          toggleLoginType: function() {
+            if(this.loginType === 'username') {
+              this.loginType = 'email';
+            } else {
+              this.loginType = 'username';
+            }
+          }
+        }
+      })
+    </script>
+  
+</body>
+</html>
