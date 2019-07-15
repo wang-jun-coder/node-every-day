@@ -1,0 +1,159 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <!-- 驼峰属性名到短横线命名 -->
+  <div id="app-1">
+    <blog-post-a post-title='hello'></blog-post-a>
+  </div>
+  <script>
+    var blogPostA = {
+      props:['postTitle'],
+      template: `<h3>{{postTitle}}<h3>`
+    };
+    var app1 = new Vue({
+      el: '#app-1',
+      data: {
+      },
+      components: {
+        blogPostA
+      }
+    });
+  </script>
+
+  <!-- 类型指定 -->
+  <div id="app-2">
+    <blog-post-b title="this is title" likes='23'></blog-post-b>
+  </div>
+  <script>
+    var blogPostB = {
+      props:{
+        title: String,
+        likes: Number,
+        isPublished: Boolean,
+        commentIds: Array,
+        author: Object,
+        callback: Function,
+        contactsPromise: Promise
+      },
+      template: `<h3>{{title}}-{{likes}}<h3>`
+    };
+    var app2 = new Vue({
+      el: '#app-2',
+      data: {
+      },
+      components: {
+        blogPostB
+      }
+    });
+  </script>
+
+  <!-- 动态 props -->
+  <div id="app-3">
+    <blog-post-c
+      title='标题'
+      :bind-title='title'
+      :expression='title + "by" + name' 
+      :likes='43'
+      :is-published='true'
+      :comment-ids='[444,555,666]'
+      :author='{name: "name", company: "company"}'
+    >
+    </blog-post-c>
+  </div>
+  <script>
+    var blogPostC = {
+      props: ['title', 'bindTitle', 'expression', 'likes', 'isPublished', 'commentIds', 'author'],
+      template: `<div>
+          <h3>{{title}}<h3>
+          <p>{{bindTitle}}<p>
+          <p>{{expression}}<p>
+          <p>likes={{likes}}<p>
+          <p>isPublished={{isPublished?'已发布':'未发布'}}<p>
+          <p>commentIds={{commentIds.join(',')}}<p>
+          <p>author={{author.name + author.company}}<p>
+        </div>`
+    }
+    var app3 = new Vue({
+      el: '#app-3',
+      data: {
+        title: '小标题',
+        name: '佚名'
+      },
+      components: {
+        blogPostC
+      }
+    })
+  </script>
+
+  <!-- 类型检查 -->
+  <div id="app-4">
+    <blog-post-d
+      :title='title'
+    >
+    </blog-post-d>
+  </div>
+  <script>
+    function Person(firstName, lastName) {
+      this.firstName = firstName;
+      this.lastName = lastName;
+    }
+
+    var blogPostD = {
+      inheritAttrs: false, // 禁止组件根元素继承特性
+      props: {
+        title: String,
+        initCnt: Number,
+        size: String,
+
+        propA: Number,
+        propB: [String, Number],
+        propC: {
+          type: String,
+          require: true,
+        },
+        propD: {
+          type: Number,
+          default: 100
+        },
+        propE: {
+          type: Object,
+          default: function() {
+            return {msg: 'hello'}
+          }
+        },
+        propF: {
+          validator: function(val) {
+            return ['success', 'warning', 'danger'].indexOf(val) !== -1;
+          }
+        },
+        propG: Person
+      },
+      data: function() {
+        return {
+          initCnt: this.initCnt || 0,
+          size: (this.size || '').trim().toLowerCase()
+        }
+      },
+      template: `<div>
+        <h3>{{title}}</h3>
+        </div>`
+    }
+    var app4 = new Vue({
+      el: '#app-4',
+      data: {
+        title: 123
+      },
+      components: {
+        blogPostD
+      }
+    })
+  </script>
+
+
+
+
+</body> 
+</html>
