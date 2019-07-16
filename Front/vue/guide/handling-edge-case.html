@@ -1,0 +1,141 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .demo {
+      background: lightcyan;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <div id="app-1" class="demo">
+        <component-a ref="refreComponent">
+          <component-b></component-b>
+        </component-a>
+        <button @click='btnClick'>display sub</button>
+
+        <tree-folder :folder='folder'></tree-folder>
+
+
+
+    </div>
+    <script>
+      // 子组件内访问根实例
+      var componentA = {
+        computed: {
+          foo: function() {
+            return this.$root.foo;
+          },
+          bar: function() {
+            return this.$root.bar;
+          },
+        },
+        // 依赖注入
+        provide: function(){ 
+          return {
+              getRoot: function() {
+                return this.$root;
+              }
+          }
+        },
+        methods: {
+          baz: function() {
+            return this.$root.baz();
+          }
+        },
+        template: `
+        <div>
+          <p>{{foo}} {{bar}} {{baz()}}</p>
+          <slot></slot>
+        </div>
+      `
+      }
+      // 子组件内访问父组件
+      var componentB = {
+        inject: ['getRoot'],
+        computed: {
+          foo: function() {
+            return this.$parent.foo;
+          },
+          bar: function() {
+            return this.$parent.bar;
+          },
+          injectSuccess: function() {
+            return this.getRoot() === this.$root;
+          }
+        },
+        methods: {
+          baz: function() {
+            return this.$parent.baz();
+          }
+        },
+        template: `
+        <div>
+            <p>{{foo}} {{bar}} {{baz()}}</p>
+            <p>{{injectSuccess ? '注入成功' : '注入失败'}}</p>
+        </div>
+      `
+      }
+      // 组件之间的循环引用
+      var treeFolder = {
+        props: ['folder'],
+        template: `
+          <p>
+            <span>{{folder.name}}</span>
+            <tree-folder-contents :children='folder.children'></tree-folder-contents>
+          </p>
+        `
+      };
+      var treeFolderContents = {
+        props: ['children'],
+        template: `
+          <ul>
+            <li v-for="(child, index) in children" :key="index">
+              <tree-folder v-if='child.children' :folder=child></tree-folder>
+              <span v-else>{{child.name}}</span>
+            </li>
+          </ul>
+        `
+      };
+      Vue.component('tree-folder', treeFolder);
+      Vue.component('tree-folder-contents', treeFolderContents);
+      var app1 = new Vue({
+        el: '#app-1',
+        components: {
+          componentA,
+          componentB,
+        },
+        data: {
+          foo: 3,
+          folder: {
+            name: '/root',
+            children: [
+              {name: '/a'},
+              {name: '/b', children: [{name: '/d'}, {name: '/e'}]},
+              {name: '/c'},
+            ]
+          }
+        },
+        computed: {
+          bar: function() {
+            return this.foo + 1;
+          }
+        },
+        methods: {
+          baz: function() {
+            return this.foo * 2 ;
+          },
+          btnClick: function() {
+            // 访问子组件实例
+            this.foo = this.$refs.refreComponent.bar;
+          }
+        },
+      });
+    </script>
+</body>
+</html>

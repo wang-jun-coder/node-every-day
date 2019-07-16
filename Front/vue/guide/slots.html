@@ -1,0 +1,207 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <div class='app-1 demo'>
+      <!-- {{name}} 对应 app1 -->
+      <component-a
+        url='http://test.com'
+      >
+        {{name}} Profile
+      </component-a>
+      <!-- slot 可以设置默认值 -->
+      <component-a
+        url='http://test.com'
+      >
+      </component-a>
+
+      <base-layout>
+        <template v-slot:header>
+          <h2>here might be a page title</h2>
+        </template>
+        <!-- 使用具名插槽, 顺序会按照插槽的顺序来 -->
+        <template v-slot:footer>
+            <p>here's some contace info</p>
+        </template>
+        <!-- 可以不使用 default 包裹, 默认会丢给 default 插槽 -->
+        <template v-slot:default>
+          <p>a paragraph for the main content</p>
+          <p>and another one</p>
+        </template>
+      </base-layout>
+
+      <!-- 组件内给插槽绑定属性, 使用时使用变量接收插槽的所有prop, 可以使用插槽 prop 的数据 -->
+      <current-user :user='user'>
+        <template v-slot:default='slotProps'>
+          {{slotProps.user.firstName}}
+        </template>
+      </current-user>
+      <!-- 简写 -->
+      <current-user :user='user'>
+        <template v-slot='slotProps'>
+          {{slotProps.user.firstName}}
+        </template>
+      </current-user>
+      <br>
+      <!-- 多插槽处理, 需要完整的 template 语法来明确作用域 -->
+      <current-user :user='user'>
+        <template v-slot:default='slotProps'>
+          {{slotProps.user.firstName}}
+        </template>
+        <template v-slot:other='slotProps'>
+            {{slotProps.user.lastName}}
+          </template>
+      </current-user>
+      <br>
+      <!-- 解构 props -->
+      <current-user :user='user'>
+        <template v-slot:default='{ user }'>
+          {{user.firstName}}
+        </template>
+        <template v-slot:other='{ u: user={ firstName: "default firstName", lastName: "default lastName" } }'>
+            {{user.lastName}}
+          </template>
+      </current-user>
+
+      <!-- 动态插槽名 -->
+      <base-layout>
+        <template v-slot:[slots.header]>
+          <h2>here might be a page title</h2>
+        </template>
+        <!-- 使用具名插槽, 顺序会按照插槽的顺序来 -->
+        <template v-slot:[slots.footer]>
+            <p>here's some contace info</p>
+        </template>
+        <!-- 可以不使用 default 包裹, 默认会丢给 default 插槽 -->
+        <template v-slot:[slots.default]>
+          <p>a paragraph for the main content</p>
+          <p>and another one</p>
+        </template>
+      </base-layout>
+
+      <!-- 具名插槽缩写 -->
+      <base-layout>
+        <template #header>
+          <h2>here might be a page title</h2>
+        </template>
+        <!-- 使用具名插槽, 顺序会按照插槽的顺序来 -->
+        <template #footer>
+            <p>here's some contace info</p>
+        </template>
+        <!-- 可以不使用 default 包裹, 默认会丢给 default 插槽 -->
+        <template #default>
+          <p>a paragraph for the main content</p>
+          <p>and another one</p>
+        </template>
+      </base-layout>
+      
+      <todo-list :todos='todos'>
+        <template v-slot:todo='{ todo }'>
+          <span v-if="todo.isComplete">✓</span>
+          {{todo.text}}
+        </template>
+
+      </todo-list>
+
+    </div>
+    <script>
+      var componentA = {
+        props: ['url'],
+        template: `
+        <a
+          v-bind:href="url"
+          class="nav-link"
+        >
+          <p>befor slot</p>
+          <slot>default data</slot>
+        </a>
+        `
+      }
+
+      var baseLayout = {
+        template: `
+        <div class="containner">
+          <header>
+            <slot name="header"></slot>
+          </header>
+          <main>
+            <!-- 没有设置 name, 默认default -->
+            <slot></slot>
+          </main>
+          <footer>
+              <slot name="footer"></slot>
+          </footer>
+        </div>
+        `
+      }
+
+      var currentUser = {
+        props: ['user'],
+        template: `
+        <span>
+          <slot :user="user">
+            {{user.lastName}}
+          </slot>
+          <slot name="other" :user="user">
+          </slot>
+        </span>
+        `
+      };
+      var todoList = {
+        props: ['todos'],
+        template: `
+          <ul>
+            <li 
+              v-for='todo in todos'
+              :key='todo.id'
+            >
+              <slot
+                name="todo"
+                :todo="todo"
+              >
+                {{todo.text}}
+              </slot>
+            </li>
+          </ul>
+        `
+      };
+
+      var app1 = new Vue({
+        el: '.app-1',
+        data: {
+          name: 'this is a test nname',
+          user: {
+            firstName: 'hello',
+            lastName: 'world'
+          },
+          slots: {
+            header: 'header',
+            main: 'main',
+            footer: 'footer',
+            default: 'default'
+          },
+          todos: [
+            {id: 1, text: 'todo 1', isComplete: true},
+            {id: 2, text: 'todo 2', isComplete: false},
+            {id: 3, text: 'todo 3', isComplete: true}
+
+          ]
+        },
+        components: {
+          componentA,
+          baseLayout,
+          currentUser,
+          todoList
+        }
+      })
+    </script>
+
+  
+</body>
+</html>

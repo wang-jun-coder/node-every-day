@@ -1,0 +1,146 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .demo {
+      background: lightcyan;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <!-- 简单混入 -->
+  <script>
+    var myMixin = {
+      created() {
+        this.hello();
+      },
+      methods: {
+        hello() {
+          console.log('hello from mixins');
+        }
+      }
+    }
+    var Component = Vue.extend({
+      mixins: [myMixin]
+    });
+    var com = new Component(); // hello from mixins
+  </script>
+
+  <!-- 选项合并 -->
+  <script>
+    var mixin = {
+      data () {
+        return {
+          message: 'hello',
+          foo: 'abc'
+        }
+      }
+    }
+    new Vue({
+      mixins: [mixin],
+      data() {
+        return {
+          message: 'goodbye',
+          bar: 'def'
+        }
+      },
+      created() {
+        console.log(JSON.stringify(this.$data)); // {"message":"goodbye","bar":"def","foo":"abc"}
+      }
+    })
+  </script>
+
+  <!-- hook 合并为数组 -->
+  <script>
+    var mixin = {
+      created () {
+        console.log('mixin on created');
+      }
+    }
+    new Vue({
+      mixins: [mixin],
+      created() {
+        console.log('components on created');
+      }
+    });
+    /**
+    mixin on created
+    components on created
+    */ 
+  </script>
+
+  <!-- 对象合并, key 冲突时取组件的值 -->
+  <script>
+    var mixin = {
+      methods: {
+        foo() {
+          console.log('foo');
+        },
+        conflicting() {
+          console.log('from mixin');
+        }
+      }
+    }
+    var vm = new Vue({
+      mixins: [mixin],
+      methods: {
+        bar() {
+          console.log('bar');
+        },
+        conflicting() {
+          console.log('from self');
+        }
+      }
+    })
+    vm.foo(); // foo
+    vm.bar(); // bar
+    vm.conflicting(); // from self
+  </script>
+
+  <!-- 全局混入 -->
+  <script>
+    Vue.mixin({
+      created() {
+        var myOption = this.$options.myOption;
+        if(myOption) {
+          console.log(myOption);
+        }
+      }
+    });
+    new Vue({
+      myOption: 'hello!'
+    });
+    // hello! 
+  </script>
+
+  <!-- 自定义选项合并策略 -->
+  <script>
+    Vue.config.optionMergeStrategies.myOption = function(toVal, fromVal) {
+      console.log('Vue.config.optionMergeStrategies.myOption')
+      console.log(`${toVal} ${fromVal}`);
+      return Object.assign({}, fromVal, toVal);
+    }
+    Vue.mixin({
+      myOption: {
+        foo: 'foo'
+      }
+    });
+    new Vue({
+      myOption: {
+        bar: 'bar'
+      },
+    })
+
+    // 大多数值为对象的选项可以使用与 methods 相同的策略
+    var strategies = Vue.config.optionMergeStrategies;
+    strategies.myOption = strategies.methods;
+  </script>
+
+
+</body>
+</html>
