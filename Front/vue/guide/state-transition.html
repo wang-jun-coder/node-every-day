@@ -1,0 +1,176 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .demo {
+      background: lightcyan;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <!-- 状态动画与侦听器 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
+
+  <div id="app-1" class="demo">
+    <input type="number" v-model.number="number" step="20">
+    <p>{{animatedNumber}}</p>
+  </div>
+  <script>
+    var app1 = new Vue({
+      el: '#app-1',
+      data: {
+        number: 0,
+        tweenedNumber: 0
+      },
+      computed: {
+        animatedNumber() {
+          return this.tweenedNumber.toFixed(0);
+        }
+      },
+      watch: {
+        number(newValue) {
+          TweenLite.to(this.$data, 0.5, {tweenedNumber: newValue});
+        }
+      }
+    })
+  </script>
+
+  <!-- 颜色转换 -->
+  <script src="https://cdn.jsdelivr.net/npm/tween.js@16.3.4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/color-js@1.0.3"></script>
+  <style>
+    .app-2-color-preview {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+    }
+  </style>
+  <div id='app-2' class="demo">
+      <input type="text" v-model="colorQuery" @keyup.enter='updateColor' placeholder="enter a color, such as #ff0000">
+      <button @click='updateColor'>update</button>
+      <p>preview:</p>
+      <span 
+        :style='{backgroundColor: tweenedCSSColor}' 
+        class="app-2-color-preview"
+      >
+      </span>
+      <p>{{tweenedCSSColor}}</p>
+  </div>
+  <script>
+    var Color = net.brehaut.Color
+    var app2 = new Vue({
+      el: '#app-2',
+      data: {
+        colorQuery: '',
+        color: {
+          red: 0,
+          green: 0,
+          blue: 0,
+          alpha: 0
+        },
+        tweenedColor: {},
+      },
+      created () {
+        this.tweenedColor = Object.assign({}, this.color);
+      },
+      watch: {
+        color() {
+          function animate() {
+            if(TWEEN.update()) {
+              requestAnimationFrame(animate)
+            }
+          }
+          new TWEEN.Tween(this.tweenedColor)
+          .to(this.color, 750)
+          .start();
+          animate();
+        }
+      },
+      computed: {
+        tweenedCSSColor(newValue) {
+          return new Color(this.tweenedColor).toCSS();
+        }
+      },
+      methods: {
+        updateColor() {
+          this.color = new Color(this.colorQuery).toRGB();
+          this.colorQuery = '';
+        }
+      }
+    });
+  </script>
+
+  <!-- 将过度动画放到组件中 -->
+  <div id='app-3' class="demo">
+    <input type="number" v-model.number="firstNumber" step="20"> + 
+    <input type="number" v-model.number="secondNumber" step="20"> =
+    {{result}}
+    <p>
+      <animated-integer :value='firstNumber'></animated-integer> +
+      <animated-integer :value='secondNumber'></animated-integer> =
+      <animated-integer :value='result'></animated-integer>
+    </p>
+  </div>
+  <script>
+    Vue.component('animated-integer', {
+      template: `<span>{{ tweeningValue }}</span>`,
+      props: {
+        value: {
+          type: Number,
+          require: true,
+        }
+      },
+      data: function() {
+        return {
+          tweeningValue: 0
+        }
+      },
+      watch: {
+        value: function(newValue, oldValue) {
+          this.tween(oldValue, newValue);
+        }
+      },
+      mounted () {
+        this.tween(0, this.value);
+      },
+      methods: {
+        tween(startValue, endValue) {
+          var vm = this;
+          function animate() {
+            if(TWEEN.update()) {
+              requestAnimationFrame(animate);
+            }
+          }
+          var vm = this;
+          new TWEEN.Tween({tweeningValue: startValue})
+          .to({ tweeningValue: endValue })
+          .onUpdate(function() {
+            vm.tweeningValue = this.tweeningValue.toFixed(0);
+          })
+          .start();
+          animate();
+        }
+      }
+    })
+    var app3 = new Vue({
+      el: '#app-3',
+      data: {
+        firstNumber: 20,
+        secondNumber: 40
+      },
+      computed: {
+        result() {
+          return this.firstNumber + this.secondNumber;
+        }
+      }
+    })
+  </script>
+
+  
+</body>
+</html>

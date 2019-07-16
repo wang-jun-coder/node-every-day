@@ -1,0 +1,168 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+  <!-- 动态组件基本使用 -->
+  <div id="app-1" class="demo">
+    <button @click='switchTab("Home")'>
+      Home
+    </button>
+    <button @click='switchTab("Posts")'>
+      Posts
+    </button>
+    <button @click='switchTab("Archive")'>
+        Archive
+    </button>
+    <component v-bind:is="currentTabComponent">Posts component</component>
+  </div>
+  <script>
+    var tabHome = { template: '<div>Home component</div>' };
+    var tabPosts = { template: '<div>Posts component</div>' };
+    var tabArchive = { template: '<div>Archive component</div>' };
+    var app1 = new Vue({
+      el: '#app-1',
+      components: {
+        tabHome,
+        tabPosts,
+        tabArchive
+      },
+      data: {
+        currentTab: 'Home',
+        tabs: ['Home', 'Posts', 'Archive']
+      },
+      computed: {
+        currentTabComponent: function () {
+          return 'tab-' + this.currentTab.toLowerCase()
+        }
+      },
+      methods: {
+        switchTab: function(tab) {
+          this.currentTab = tab;
+        }
+      }
+    })
+  </script>
+
+  <!-- keeplive -->
+  <div id="app-2" class="demo">
+      <button @click='currentTab = "Posts"'>
+        Posts
+      </button>
+      <button @click='currentTab = "Archive"'>
+          Archive
+      </button>
+      <keep-alive>
+          <component :is="currentTabComponent"></component> 
+      </keep-alive>
+  </div>
+  <script>
+
+    var tabPosts = {
+      data: function () {
+        return {
+          posts: [
+            {id: 1,title: 'Cat Ipsum',content: '<p>Dont wait for the storm to pass, dance in the rain kick up litter decide to want nothing to do with my owner today demand to be let outside at once, and expect owner to wait for me as i think about it cat cat moo moo lick ears lick paws so make meme, make cute face but lick the other cats. Kitty poochy chase imaginary bugs, but stand in front of the computer screen. Sweet beast cat dog hate mouse eat string barf pillow no baths hate everything stare at guinea pigs. My left donut is missing, as is my right loved it, hated it, loved it, hated it scoot butt on the rug cat not kitten around</p>'},
+            {id: 2,title: 'Hipster Ipsum',content: '<p>Bushwick blue bottle scenester helvetica ugh, meh four loko. Put a bird on it lumbersexual franzen shabby chic, street art knausgaard trust fund shaman scenester live-edge mixtape taxidermy viral yuccie succulents. Keytar poke bicycle rights, crucifix street art neutra air plant PBR&B hoodie plaid venmo. Tilde swag art party fanny pack vinyl letterpress venmo jean shorts offal mumblecore. Vice blog gentrify mlkshk tattooed occupy snackwave, hoodie craft beer next level migas 8-bit chartreuse. Trust fund food truck drinking vinegar gochujang.</p>'},
+            {id: 3,title: 'Cupcake Ipsum',content: '<p>Icing dessert soufflé lollipop chocolate bar sweet tart cake chupa chups. Soufflé marzipan jelly beans croissant toffee marzipan cupcake icing fruitcake. Muffin cake pudding soufflé wafer jelly bear claw sesame snaps marshmallow. Marzipan soufflé croissant lemon drops gingerbread sugar plum lemon drops apple pie gummies. Sweet roll donut oat cake toffee cake. Liquorice candy macaroon toffee cookie marzipan.</p>'}
+          ],
+          selectedPost: null
+        }
+      },
+      template: `
+        <div>
+          <ul>
+            <li
+              v-for="post in posts"
+              v-bind:key="post.id"
+              v-on:click="selectedPost = post"
+            >
+              {{ post.title }}
+            </li>
+          </ul>
+          <div>
+            <div 
+              v-if="selectedPost"
+            >
+              <h3>{{ selectedPost.title }}</h3>
+              <div v-html="selectedPost.content"></div>
+            </div>
+            <strong v-else>
+              Click on a blog title to the left to view it.
+            </strong>
+          </div>
+        </div>
+      `
+    };
+    var tabArchive = {
+      template: '<div>Archive component</div>'
+    };
+    var app2 = new Vue({
+      el: '#app-2',
+      components: {
+        tabPosts,
+        tabArchive
+      },
+      data: {
+        currentTab: 'Posts',
+        tabs: ['Posts', 'Archive']
+      },
+      computed: {
+        currentTabComponent: function () {
+          return 'tab-' + this.currentTab.toLowerCase()
+        }
+      }
+    })
+  </script>
+
+  <!-- 异步组件 -->
+  <div id="app-3" class="demo">
+    <async-example></async-example>
+    <async-component></async-component>
+  </div>
+  <script>
+    var asyncExample = function(resolve, reject) {
+      setTimeout(() => {
+        resolve({
+          template: `<div>i am async!</div>`
+        })
+      }, 1000);
+    };
+    var loadingComponent = {
+      template: `<div>loading...</div>`
+    };
+    var errorComponent = {
+      template: `<div>loading failed</div>`
+    };
+    var asyncComponent = () => ({
+      component: (new Promise((resolve, reject) => {
+        setTimeout(() => {
+          return resolve({
+            template: `<div>i am loading with loading component</div>`
+          })
+        }, 1000);
+      })),
+      loading: loadingComponent, 
+      error: errorComponent,
+      delay: 200,
+      timeout: 3000
+    });
+    var app3 = new Vue({
+      el: '#app-3',
+      components: {
+        asyncExample,
+        loadingComponent,
+        errorComponent,
+        asyncComponent
+      },
+      data: {}
+    })
+  </script>
+
+</body>
+</html>

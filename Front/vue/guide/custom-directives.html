@@ -1,0 +1,131 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .demo {
+      background: lightcyan;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <!-- 自定义指令 -->
+  <div id="app-1" class="demo">
+    <input type="text" v-focus-g>
+    <!-- <input type="text" v-focus-l> -->
+    
+  </div>
+  <script>
+    Vue.directive('focus-g', {
+      inserted(el) {
+        el.focus();
+      }
+    })
+    var app1 = new Vue({
+      el: '#app-1',
+      data: {
+
+      },
+      directives: {
+        'focus-l': {
+          inserted: function(el) {
+            el.focus();
+          }
+        }
+      }
+    })
+  </script>
+
+  <!-- 使用自定义属性 -->
+  <div id="app-2" class="demo" v-demo:foo.a.b='message'>
+  </div>
+  <script>
+    var app2 = new Vue({
+      el: '#app-2',
+      data: {
+        message: 'hello!'
+      },
+      directives: {
+        demo: {
+          bind: function(el, binding, vnode) {
+            var s = JSON.stringify;
+            el.innerHTML = `
+              name: ${s(binding.name)} <br>
+              value: ${s(binding.value)} <br>
+              expression: ${s(binding.expression)} <br>
+              argument: ${s(binding.argument)} <br>
+              modifiers: ${s(binding.modifiers)} <br>
+              vnode keys: ${s(Object.keys(vnode).join(','))} <br>
+            `
+          }
+        }
+      }
+    })
+  </script>
+
+  <!-- 动态指令参数 -->
+  <div id="app-3" class="demo">
+    <p>scroll let the page</p>
+    <p v-pin:[direction]='200'>i am pinned onto the page at 200px to the left</p>
+  </div>
+  <script>
+    var app3 = new Vue({
+      el: '#app-3',
+      data: function() {
+        return {
+          direction: 'left'
+        }
+      },
+      directives: {
+        pin: {
+          bind: function(el, binding, vnode) {
+            el.style.position = 'fixed';
+            var d = (binding.arg == 'left' ? 'left' : 'top');
+            el.style[d] = binding.value + 'px';
+          }
+        }
+      }
+    });
+  </script>
+
+  <!-- 函数简写 -->
+  <script>
+    new Vue({
+      directives: {
+        'color-swatch': function(el, binding) {
+          el.style.backgroundColor = binding.value;
+        }
+      }
+    })
+  </script>
+
+  <!-- 对象字面量 -->
+  <div id="app-4" class="demo">
+    <div v-demo1="{ color: color, text: 'hello!' }">test directives</div>
+  </div>
+    
+  <script>
+    var app4 = new Vue({
+      el: '#app-4',
+      data: function() {
+        return {
+          color: 'white',
+          text: 'hello'
+        }
+      },
+      directives: {
+        demo1:  function(el, binding) {
+          console.log(binding.value.color);
+          console.log(binding.value.text);
+        }
+      }
+    })
+  </script>
+
+
+</body>
+</html>
