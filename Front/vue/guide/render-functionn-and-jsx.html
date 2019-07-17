@@ -1,0 +1,242 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .demo {
+      background-color: lightcyan;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+  <!-- 基础场景, 避免大量 if-else -->
+  <div id="app-1" class="demo">
+    <anchored-heading :level='1' :heading-id='"first"'>hello world</anchored-heading>
+    <anchored-heading :level='2' :heading-id='"second"'>hello world</anchored-heading>
+    <anchored-heading :level='2' :heading-id='"third"'>hello world</anchored-heading>
+  </div>
+  <script>
+    var app1 = new Vue({
+      el: '#app-1',
+      data: {},
+      components: {
+        'anchored-heading': {
+          render(createElement) {
+            return createElement(`h${this.level}`, 
+                                [createElement('a',{
+                                  attrs: {
+                                    name: this.headingId,
+                                    href: `#${this.headingId}`
+                                  }
+                                }, this.$slots.default)]);
+          },
+          props: {
+            level: {
+              type: Number,
+              required: true 
+            },
+            'heading-id': {
+              type: String,
+              required: true
+            }
+          }
+        }
+      }
+    })
+  </script>
+
+  <!-- createElement 完整示例 -->
+  <div id="app-2" class="demo">
+    <anchored-heading :level='2' >hello2</anchored-heading>
+  </div>
+  <script>
+    var getChildrenTextContent = function(children) {
+      return children.map(node => {
+        return node.children ? getChildrenTextContent(node) : node.text;
+      }).join('');
+    }
+    var app2 = new Vue({
+      el: '#app-2',
+      data: {},
+
+      components: {
+        'anchored-heading': {
+          props: {
+            level: {
+              type: Number,
+              required: true 
+            }
+          },
+          render(createElement) {
+            var headingId = getChildrenTextContent(this.$slots.default)
+            .toLowerCase()
+            .replace(/\W+/g, '-')
+            .replace(/(^-|-$)/g, '');
+            return createElement(
+              `h${this.level}`, 
+              [
+                createElement('a', {
+                  attrs: {
+                    name: headingId,
+                    href: `#${headingId}`
+                  }
+                }, this.$slots.default)
+              ]
+            );
+          }
+        }
+      }
+    })
+  </script>
+  <!-- js 实现 v-if 和 v-for  -->
+  <div id='app-3' class="demo">
+    <item-list :items='items1'></item-list>
+    <custom-input v-model="value"></custom-input>
+    <p>{{value}}</p>
+
+    <jsx-demo></jsx-demo>
+  </div>
+  <script>
+    var app3 = new Vue({
+      el: '#app-3',
+      data: {
+        items1: [
+          {name: 'i1'},
+          {name: 'i2'},
+          {name: 'i3'},
+        ],
+        items2: [],
+        value: ''
+      },
+      components: {
+        itemList: {
+          props: ['items'],
+          render(createElement) {
+            if(this.items.length) {
+              return createElement('ul', this.items.map(item => {
+                return createElement('li', item.name);
+              }))
+            } else {
+              return createElement('p', 'no items found');
+            }
+          }
+        },
+        customInput: {
+          props:['value'],
+          render(createElement) {
+            var self = this;
+            return createElement('input', {
+              domProps: {
+                value: self.value,
+              },
+              on: {
+                input(event) {
+                  self.$emit('input', event.target.value);
+                }
+              }
+            })
+          }
+        },
+        jsxDemo: {
+          // 需要 babel 转码
+          // render(h) {
+          //   return (
+          //     <div>
+          //       <span>hello jsx</span>
+          //     </div>
+          //   );
+          // }
+        }
+      }
+    })
+  </script>
+
+  <!-- 函数式组件 -->
+  <div id="app-4" class="demo">
+    <smart-list :items='[]'></smart-list>
+    <smart-list :items='[[1,2,3],[4,5,6],[7,8,9]]'></smart-list>
+    <smart-list :items='[1,2,3]'></smart-list>
+    <smart-list :items='[1,2,3]' :is-ordered='true'></smart-list>
+
+  </div>
+  <script>
+    var EmptyList = {
+      template: `<p>empty list</p>`
+    }
+    var TableList = {
+      props: ['items'],
+      template: `
+        <table>
+          <tr v-for="(row, index) in items" :key="index">
+            <td v-for="(cell,index) in row">{{cell}}</td>
+          </tr>
+        </table>
+      `
+    }
+    var OrderList = {
+      props: ['items'],
+      template: `
+        <ol>
+          <li v-for="(item, index) in items" :key="index">{{item}}</li>
+        </ol>
+      `
+    }
+    var UnorderList = {
+      props: ['items'],
+      template: `
+        <ul>
+          <li v-for="(item, index) in items" :key="index">{{item}}</li>
+        </ul>
+      `
+    }
+    var app4 = new Vue({
+      el: '#app-4',
+      data: {},
+      components: {
+        EmptyList,
+        TableList,
+        OrderList,
+        UnorderList,
+        smartList: {
+          functional: true,
+          props: {
+            items: {
+              type: Array,
+              required: true
+            },
+            isOrdered: Boolean
+          },
+          render(createElement, context) {
+            function appropriateListComponent() {
+              var items = context.props.items;
+              if(!items || items.length === 0) return EmptyList;
+              if(typeof items[0] === 'object') return TableList;
+              if(context.props.isOrdered)      return OrderList;
+              return UnorderList;
+            }
+            console.log(context);
+            var component = appropriateListComponent();
+            return createElement(
+              component,
+              {
+                ...context.data,
+                attrs: {
+                  ...context.data.attrs,
+                  ...context.props
+                }
+              },
+              context.children
+            )
+          }
+        }
+      }
+    })
+  </script>
+
+</body>
+</html>
