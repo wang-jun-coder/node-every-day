@@ -1,0 +1,114 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <!-- Object.defineProperty -->
+  <script>
+    var data = {a : 1, b: {c:1}};
+    var vm = new Vue({
+      data: data
+    });
+
+    // 模拟双向绑定
+    function VM(options) {
+      function bindings(from, to) {
+        for(let key in from) {
+          Object.defineProperty(to, key, {
+            get() {return from[key];},
+            set(val) {from[key] = val;}
+          });
+          const value = from[key];
+          if(value && typeof value === Object) {
+            bindings(value, to[key]);
+          }
+        }
+      }
+      this._data = options.data;
+      bindings(options.data, this);
+    }
+
+    var vm1 = new VM({
+      data: data
+    });
+    data.a = 2;
+    console.log(`data.a = 2; data: ${data.a} vm: ${vm.a} vm1: ${vm1.a}`);
+    vm.a = 3;
+    console.log(`vm.a = 3;   data: ${data.a} vm: ${vm.a} vm1: ${vm1.a}`);
+    vm1.a = 4;
+    console.log(`vm1.a = 4;  data: ${data.a} vm: ${vm.a} vm1: ${vm1.a}`);
+    
+    data.b.c = 'c';
+    console.log(`data.b.c = 'c';  data: ${data.b.c} vm: ${vm.b.c} vm1: ${vm1.b.c}`);
+
+    data.b = {d : 'e'};
+    console.log(`data.b = {d : 'e'};  data: ${JSON.stringify(data.b)} vm: ${JSON.stringify(vm.b)} vm1: ${JSON.stringify(vm1.b)}`);
+
+    data.b.d = 'f';
+    console.log(`data.b.d = 'f';  data: ${JSON.stringify(data.b)} vm: ${JSON.stringify(vm.b)} vm1: ${JSON.stringify(vm1.b)}`);
+
+    vm1.b.d ='g';
+    console.log(`vm1.b.d ='g';  data: ${JSON.stringify(data.b)} vm: ${JSON.stringify(vm.b)} vm1: ${JSON.stringify(vm1.b)}`);
+
+    data.h = 1;
+    console.log(`data.h = 1;  data: ${data.h} vm: ${vm.h} vm1: ${vm1.h}`);
+  </script>
+
+  <!-- poxy -->
+  <script>
+    function VM2(options) {
+      function bindings(from, to) {
+        var fromProxy = new Proxy(from, {
+          set(target, key, value, receiver) {
+            console.log(`+++++: ${JSON.stringify(target)} set ${key} ${value}`);
+            Reflect.set(target, key, value, receiver);
+          }
+        });
+        var toProxy = new Proxy(to, {
+          get(target, key, receiver) {
+            if(from.hasOwnProperty(key)) {
+              return Reflect.get(from, key, receiver);
+            }
+            return Reflect.get(target, key, receiver);
+          },
+          set(target, key, value, receiver) {
+            if(from.hasOwnProperty(key)) {
+              return Reflect.set(fromProxy, key, value);
+            }
+            return Reflect.set(target, key, value, receiver);
+          }
+        })
+        return toProxy;
+      }
+      return bindings(options.data, this);
+    }
+
+    var data = {
+      a: 1,
+      b: {
+        c: 'd'
+      }
+    };
+    var vm2 = new VM2({
+      data: data,
+    });
+    data.a = 2;
+    console.log(`data.a = 2; ${data.a} ${vm2.a}`);
+    vm2.a = 3;
+    console.log(`vm2.a = 3;   ${data.a} ${vm2.a}`);
+    vm2.c = 'd';
+    console.log(`vm.c = 'd';   ${data.c} ${vm2.c}`);
+    data.d = 'e';
+    console.log(`data.d = 'e';   ${data.d} ${vm2.d}`);
+    data.b.c = 'f';
+    console.log(`datadata.b.c = 'f'; ${data.b.c} ${vm2.b.c}`);
+
+
+  </script>
+
+</body>
+</html>
