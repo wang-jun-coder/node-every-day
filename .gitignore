@@ -67,5 +67,6 @@ typings/
 **/latest/**
 **/build/**
 **/*wj.config
+**/dist/**
 Note/oss-upload/.wj.config.js
 Deploy/minikube/registry/data
