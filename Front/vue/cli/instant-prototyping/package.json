@@ -1,0 +1,10 @@
+{
+  "name": "instant-prototyping",
+  "version": "1.0.0",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "start": "vue serve",
+    "build": "vue build"
+  }
+}
