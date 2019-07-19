@@ -10,6 +10,9 @@
       @done="doneTodo"
     ></todo-item>
   </ul>
+  <div v-else class="empty-view">
+    <p>there is nothing todos to display</p>
+  </div>
 </template>
 <script>
 import TodoItem from "./TodoItem";
@@ -38,5 +41,14 @@ export default {
   padding: 0;
   margin: 0;
   padding-inline-start: 0;
+  background-color: lightcyan;
 }
+.empty-view {
+  background-color: lightcyan;
+  padding: 15px;
+}
+p {
+  margin: 0;
+}
+
 </style>

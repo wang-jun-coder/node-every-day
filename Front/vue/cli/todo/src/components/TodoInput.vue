@@ -2,6 +2,7 @@
   <div class="todo-input">
     <input 
       type="text" 
+      placeholder="please enter a todo"
       :value="value"
       @input="$emit('input', $event.target.value)"
       @keyup.enter="$emit('add', value)"
@@ -53,6 +54,7 @@ button {
   border: 1px solid #dddddd;
   font-size: 20px;
   vertical-align: middle;
+  background-color: white;
 }
 
 </style>
