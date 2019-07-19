@@ -34,6 +34,7 @@ input {
   height: 20px;
   margin: 0;
   padding: 0;
+  background: white;
 }
 
 span {
