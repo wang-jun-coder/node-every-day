@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  if !user
+    form(method='get' action='/users/login')
+      button(type='submit') login
+  else
+    p `#{JSON.stringify(user || {})}`
+    a(href=`${subSystemUrl}`) sub-system2
+    br
+    form(method='get' action='/users/logout')
+      button(type='submit') logout
+
+
+
