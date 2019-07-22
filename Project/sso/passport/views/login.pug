@@ -1,0 +1,13 @@
+extends layout
+
+block content
+    div.main
+        form( method='POST')
+            span 用户名:
+            input(name='username' placeholder='请输用户名')
+            br
+            span 密码:
+            input(name='password' placeholder='请输入密码' type='password')
+            br
+            input(name='redirectUrl' value=`${redirectUrl}` type='hidden')
+            button(type='submit') 登录
