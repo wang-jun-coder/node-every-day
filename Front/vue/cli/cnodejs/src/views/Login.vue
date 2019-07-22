@@ -42,7 +42,7 @@ export default {
     }
   },
   watch: {
-    isLogin(val) {
+    isLogin() {
       this.getUserDetail();
     }
   },
