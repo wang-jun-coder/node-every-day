@@ -1,0 +1,399 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>framework-theory</title>
+</head>
+<body>
+  <!-- 参考教程: https://gitbook.cn/gitchat/column/5c91c813968b1d64b1e08fde/topic/5cbbef7cbbbba80861a35c23 -->
+  <script>
+    //  使用 Object.defineProperty 监听数据变化
+    let dataForDefineProperty = {
+      stage: 'GitChat',
+      course: {
+        title: '前端开发进阶',
+        author: ['Lucas', 'Ronaldo'],
+        publishTime: '2018 年 5 月'
+      }
+    }
+
+    // 拦截数组方法
+    const arrayExtend = Object.create(Array.prototype);
+    const arrayMethods = [
+      'push',
+      'pop',
+      'shift',
+      'unshift',
+      'splice',
+      'sort',
+      'reverse'
+    ];
+    arrayMethods.forEach(m => {
+      const oldMethod = Array.prototype[m];
+      arrayExtend[m] = function(...args) {
+        console.log(`ArrayExtend: method: ${m} args: ${JSON.stringify(args)}`);
+        oldMethod.apply(this, args);
+      };
+    });
+    // 注意: 对全局 Array 原型的修改, 会影响很多地方, 需要使用时再打开
+    // Array.prototype = Object.assign(Array.prototype, arrayExtend);
+
+
+    const observeWithDefineProperty = data => {
+      if(!data || typeof data !== 'object') return;
+      Object.keys(data).forEach(key => {
+        let current = data[key];
+        observeWithDefineProperty(current);
+        Object.defineProperty(data, key, {
+          enumerable: true,
+          configurable: false,
+          get() {
+            console.log(`get key: ${key} value: ${current}`);
+            return current;
+          },
+          set(newVal) {
+            current = newVal;
+            console.log(`set key: ${key} value: ${current}`);
+          }
+        })
+      });
+    }
+    observeWithDefineProperty(dataForDefineProperty);
+  </script>
+  <script>
+    // 使用 Proxy 监听对象变化
+    let dataForProxy = {
+      stage: 'GitChat',
+      course: {
+        title: '前端开发进阶',
+        author: ['Lucas', 'Ronaldo'],
+        publishTime: '2018 年 5 月'
+      }
+    }
+  
+    const observeWithProxy = data => {
+      if(!data || typeof data !== 'object') {
+        return;
+      }
+      Object.keys(data).forEach(key => {
+        let current = data[key];
+      
+        if(typeof current === 'object') {
+          observeWithProxy(current);
+          data[key] = new Proxy(current, {
+            get(target, property, receiver) {
+              console.log(`get ${target}  ${property} `);
+              return Reflect.get(target, property, receiver);
+            },
+            set(target, property, value, receiver) {
+              console.log(`set ${target}  ${property} `);
+              return Reflect.set(target, property, value, receiver);
+            }
+          });
+        } else {
+          Object.defineProperty(data, key, {
+            enumerable: true,
+            configurable: false,
+            get() {
+              console.log(`get ${data} ${key} ${current}`);
+              return current;
+            },
+            set(newVal) {
+              current = newVal;
+              console.log(`set ${data} ${key} ${current}`);
+            }
+          })
+        }
+      });
+    }
+    observeWithProxy(dataForProxy);
+  </script>
+
+  <!-- 模板编译 -->
+  <div id="app">
+      <h1>{{stage}} 平台课程：{{course.title}}</h1>
+      <p>{{course.title}} 是 {{course.author}} 发布的课程</p>
+      <p>发布时间为 {{course.publishTime}}</p>
+      <input type="text" v-model="input.data" style="background-color: lightCyan">
+  </div>
+  <script>
+    function compile(el, data) {
+      const fragment = document.createDocumentFragment();
+
+      let child = null;
+      while(child = el.firstChild) {
+        fragment.appendChild(child)
+      }
+
+      function replace(fragment) {
+        Array.from(fragment.childNodes).forEach(node => {
+          // 数据绑定
+          if(node.nodeType === Node.ELEMENT_NODE) {
+            let attributesArray = node.attributes;
+            Array.from(attributesArray).forEach(attr => {
+              const { name, value } = attr;
+              if(name.includes('v-')) {
+                node.value = value.split('.').reduce((prev, key) => key ? prev[key] : prev, data);
+                node.addEventListener('input', event => {
+                  let newVal = event.target.value;
+                  let keys = value.split('.');
+                  let lastKey = keys.pop();
+                  const lastObj = keys.reduce((prev, key) => prev[key], data);
+                  lastObj[lastKey] = newVal;
+                });
+              }
+            });
+          }
+
+          // 替换变量
+          let textContent = node.textContent
+          let reg = /\{\{(.*?)\}\}/g
+          if(node.nodeType === Node.TEXT_NODE && reg.test(textContent)) {
+            console.log(node);
+            const replaceText = () => {
+              node.textContent = textContent.replace(reg, (matched, placeholder) => {
+                return placeholder.split('.').reduce((prev, key) => prev[key], data);
+              });
+            };
+            replaceText();
+          }
+          // 递归处理
+          if (node.childNodes && node.childNodes.length) {
+            replace(node)
+          }
+        });
+      }
+
+      replace(fragment);
+      el.appendChild(fragment);
+      return el;
+    }
+    const data = {
+      stage: 'GitChat',
+      inputData: '',
+      input: {
+        data: ''
+      },
+      course: {
+        title: '前端开发进阶',
+        author: 'Lucas', 
+        publishTime: '2018 年 5 月'
+      }
+    };
+    observeWithProxy(data);
+    compile(document.getElementById('app'), data);
+  </script>
+
+  <!-- 虚拟 dom -->
+  <script>
+    // 工具方法, 设置节点属性
+    const setAttribute = (node, key, value) => {
+      switch (key) {
+        case 'style': node.style.cssText = value; break;
+        case 'value': {
+          let tagName = node.tagName || '';
+          tagName = tagName.toLowerCase();
+          if(tagName === 'input' || tagName === 'textarea') {
+            node.value = value;
+          } else {
+            node.setAttribute(key, value);
+          }
+          break;
+        };
+        default:
+          node.setAttribute(key, value);
+          break;
+      }
+    }
+    // 虚拟 dom 类
+    class Element {
+      constructor(tagName, attributes={}, children=[]) {
+        this.tagName = tagName;
+        this.attributes = attributes;
+        this.children = children;
+      }
+      render() {
+        let element = document.createElement(this.tagName);
+        let attributes = this.attributes;
+
+        for(let key in attributes) {
+          setAttribute(element, key, attributes[key]);
+        }
+
+        this.children.forEach(child => {
+          let childElement = child instanceof Element ? child.render() : document.createTextNode(child);
+          element.appendChild(childElement);
+        });
+        return element;
+      }
+    }
+    // 虚拟 dom 工厂方法
+    function element(tagName, attributes, children) {
+      return new Element(tagName, attributes, children);
+    }
+    // 加载至 dom 中工具方法
+    const renderToDom = (element, target) => {
+      target.appendChild(element);
+    }
+
+    // differ 方法
+
+    let initialIndex = 0;
+    function walkToDiffer(oldVirtualDom, newVirtualDom, index, patchs) {
+      const differResult = [];
+      // 新节点不存在, 移除
+      if(!newVirtualDom) {
+        differResult.push({
+          type: 'REMOVE',
+          index
+        });
+      } 
+      // 新旧节点均为字符串
+      else if(typeof oldVirtualDom === 'string' && typeof newVirtualDom === 'string') {
+        if(oldVirtualDom !== newVirtualDom) {
+          differResult.push({
+            type: 'MODIFY_TEXT',
+            data: newVirtualDom,
+            index
+          });
+        }
+      } 
+      // 新旧节点类型相同, 比较属性
+      else if(oldVirtualDom.tagName === newVirtualDom.tagName) {
+        const differAttributeResult = {};
+
+        // 旧属性修改, 新属性添加
+        for(let key in oldVirtualDom) {
+          if(oldVirtualDom[key] !== newVirtualDom[key]) {
+            differAttributeResult[key] = newVirtualDom[key];
+          }
+        }
+        for(let key in newVirtualDom) {
+          if(!oldVirtualDom.hasOwnProperty(key)) {
+            differAttributeResult[key] = newVirtualDom[key];
+          }
+        }
+
+        // 若对比有结果, 则增加比对结果
+        if(Object.keys(differAttributeResult).length > 0) {
+          differResult.push({
+            type: 'MODIFY_ATTRIBUTES',
+            differAttributeResult
+          });
+        }
+
+        // 遍历子节点
+        oldVirtualDom.children.forEach((child, i) => {
+          walkToDiffer(child, newVirtualDom.children[i], ++initialIndex, patchs);
+        });
+      } 
+      // 类型不同, 直接替换
+      else {
+        differResult.push({
+          type: 'REPLACE',
+          newVirtualDom
+        });
+      }
+      // 旧dom 不存在, 则新 dom 插入
+      if(!oldVirtualDom) {
+        differResult.push({
+          type: 'REPLACE',
+          newVirtualDom
+        });
+      }
+      if(differResult.length) {
+        patchs[index] = differResult;
+      }
+    }
+    const differ = (oldVirtualDom, newVirtualDom) => {
+      let patches = {};
+      initialIndex = 0; // differ 时进行了深度遍历, 使用唯一 id 标记遍历的对应顺序, 进行递归修改时, 根据 id 获取对应修改内容
+      walkToDiffer(oldVirtualDom, newVirtualDom, initialIndex, patches);
+      return patches;
+    }
+
+    // 对指定节点进行修改
+    const doPatch = (node, patches) => {
+      patches.forEach(patch => {
+        switch (patch.type) {
+          case 'MODIFY_ATTRIBUTES': {
+            const attributes = patch.differAttributeResult.attributes;
+            for (const key in attributes) {
+              if(node.nodeType !== Node.ELEMENT_NODE) return;
+              const value = attributes[key];
+              if(value) {
+                setAttribute(node, key, value);
+              } else {
+                node.removeAttribute(key);
+              }
+            }
+          }
+          break;
+          case 'MODIFY_TEXT': node.textContent = patch.data; break;
+          case 'REPLACE': {
+            let newNode = (patch.newVirtualDom instanceof Element) ? patch.newVirtualDom.render() : document.createTextNode(patch.newVirtualDom);  
+            node.parentNode.replaceChild(newNode, node);
+          }
+          break;
+          case 'REMOVE': node.parentNode.removeChild(node); break;
+          default: break;
+        }
+      });
+    };
+
+    const walk = (node, walker, patches) => {
+      let currentPatch = patches[walker.index];
+      let childNodes = node.childNodes;
+
+      childNodes.forEach(child => {
+        walker.index ++;
+        walk(child, walker, patches);
+      });
+      if(currentPatch) {
+        doPatch(node, currentPatch);
+      }
+    };
+
+    const patch = (node, patches) => {
+      let walker = {index: 0};
+      walk(node, walker, patches);
+    };
+
+    // 测试生成虚拟 dom 并加载至节点中
+    const chapterOne = element('li', {class: 'chapter'}, ['chapter 1']);
+    const chapterListVirtualDom = element('ul', {id: 'list'}, [
+      chapterOne,
+      element('li', {class: 'chapter'}, ['chapter 2']),
+      element('li', {class: 'chapter'}, ['chapter 3'])
+    ]);
+    const dom = chapterListVirtualDom.render();
+    renderToDom(dom, document.body);
+
+    // 生成新 dom 替换就有 dom
+    const chapterListVirtualDom1 = element('ul', {id: 'list'}, [
+    chapterOne,
+      element('li', {class: 'chapter2'}, ['chapter 5']),
+      element('li', {class: 'chapter2'}, ['chapter 6'])
+    ]);
+
+    setTimeout(() => {
+      const patchs = differ(chapterListVirtualDom, chapterListVirtualDom1);
+      patch(dom, patchs);  
+    }, 1000);
+
+    // 生成新 dom 替换就有 dom
+    // const chapterListVirtualDom2 = element('ul', {id: 'list'}, [
+    //   element('li', {class: 'chapter3'}, ['chapter 7']),
+    //   element('li', {class: 'chapter3'}, ['chapter 8'])
+    // ]);
+    // setTimeout(() => {
+    //   const patchs = differ(chapterListVirtualDom1, chapterListVirtualDom2);
+    //   patch(dom, patchs);  
+    // }, 2000);
+  
+  </script>
+
+  
+</body>
+</html>
