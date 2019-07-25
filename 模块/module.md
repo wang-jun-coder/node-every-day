@@ -1,5 +1,23 @@
 ## 模块机制
 
+### 模块加载
+* `main `
+* `node::Start(argc, argv);`
+* `Start(uv_default_loop(), args, exec_args);`
+* `Start(isolate, isolate_data.get(), args, exec_args);`
+* `LoadEnvironment(&env);`
+* `internal/bootstrap/node.js`
+* `startup();`
+* `CJSModule.runMain();`
+* `Module._load(process.argv[1], null, true);`
+* `tryModuleLoad(module, filename);`
+* `module.load(filename);`
+* `Module._extensions[extension](this, filename);`
+* `module._compile(stripBOM(content), filename);`
+* `compiledWrapper.call(this.exports, this.exports, require, this,
+                                  filename, dirname);`
+                                  
+
 ### 循环引用问题
 
 ```js
