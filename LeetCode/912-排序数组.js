@@ -1,0 +1,114 @@
+/*
+冒泡排序, 双层循环
+每次内层循环比较相邻两个元素, 确保后一位比前一位大
+每次外层循环得到最大,倒数第二大...(数组最后一位是最大, ...)
+每次将大值, 冒泡到数组最后, 故名冒泡排序
+*/
+const bubbleSort = nums => {
+	if (!nums || nums.length <=1) return nums;
+	for(let i=0; i< nums.length-1; i++) {
+		for(let j=0; j< nums.length-i-1; j++) {
+			if (nums[j] > nums[j+1]) { // 升序排序, 前者比后者大, 交换位置
+				[nums[j], nums[j+1]] = [nums[j+1], nums[j]];
+			}
+		}
+	}
+	return nums;
+}
+
+/*
+选择排序, 双层循环
+每轮外层循环选择第 i 位置的值
+每轮内存循环, 确保第 i 位置的值, 是第 i 小的
+每次外层选择排名, 内层获取此排名, 故名选择排序
+*/
+const selectSort = nums => {
+	if (!nums || nums.length <=1) return nums;	
+	for(let i=0; i<nums.length; i++) {
+		for(let j=i+1; j<nums.length; j++) {
+			if (nums[i] > nums[j]) { // 升序排列, 若有比第 i 位大的元素, 则替换第 i 位的值
+				[nums[j], nums[i]] = [nums[i], nums[j]];
+			}
+		}
+	}
+	return nums;
+}
+
+/*
+插入排序, 双层循环
+外层循环, 默认前 i 个为有序数组, 初始值为 1
+内层循环, 为即将插入的元素, 寻找合适的插入位置
+故名插入排序
+*/
+const insertSort = nums => {
+	if (!nums || nums.length <=1) return nums;
+
+	for(let i=1; i<nums.length; i++) {
+		let j = i;
+		let tmp = nums[j]; // 取出要插入的元素
+
+		// 当要插入的元素, 比前一个元素还要小, 则前一个元素后移, 直至找到合适的插入位置
+		while(j > 0 && tmp < nums[j-1]) {
+			nums[j] = nums[j-1];
+			j--;
+		}	
+		// 找到合适位置后, 插入元素
+		nums[j] = tmp;
+	}
+	return nums;
+}
+
+/*
+快速排序
+
+*/
+const quickSort = nums => {
+	if (!nums || nums.length <=1) return nums;
+	function partition(nums, left, right) {
+		// 对指定区间内元素进行排序
+		// 选取一个基数, 将区间内小于基数的元素放在该元素左侧, 否则右侧
+		let base = nums[left]; // 为了后续遍历跳过基准值方便(无需跳过基准值), 故选择开始元素
+		// 用 save 点, 标记大于基准点对应区间的起始索引 
+		// 这样在基准值右侧可以 save 点分为大于基准值和小于基准值两个区间
+		// 当一轮遍历完毕后, 仅需要, 将基准值, 和小于区间的最大值即 save-1 点位置的元素互换, 此时即可达成 基准值左侧均小于基准值, 基准值右侧大于基准值
+		let save = left+1; 
+
+		for(let i=left+1; i<=right; i++) {
+			// 小于基准值的元素, 将其放到 save 点, 同时将save 点++, 这样 save 点之前都是小于基准值的元素
+			if (nums[i]<base) {
+				[nums[i], nums[save]] = [nums[save], nums[i]];
+				save++
+			}
+		}
+		[nums[left], nums[save-1]] = [nums[save-1], nums[left]];
+		return save-1;
+	}
+	function recursive(nums, left, right) {
+		if (left > right) return nums;
+		// 找出分割点
+		let index = partition(nums, left, right);
+		// 递归排序
+		recursive(nums, left, index-1);
+		recursive(nums, index+1, right);
+		return nums;
+	}
+	return recursive(nums, 0, nums.length-1);
+}
+
+
+function randomnums(len=1, min=0, max=1) {
+	let nums = [];
+
+	while(len--) {
+		nums.push(Math.floor(Math.random() * max + min));
+	}
+	return nums;
+}
+let nums = randomnums(5, 0, 100);
+nums=[5,2,3,1]
+console.log(nums);
+// console.log(bubbleSort(nums));
+// console.log(selectSort(nums));
+// console.log(insertSort(nums));
+console.log(quickSort(nums));
+
