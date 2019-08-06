@@ -4,7 +4,6 @@
  */
 var generate = function(numRows) {
 	const ret = [];
-
 	while(numRows) {
 		numRows--;
 		if (ret.length === 0) {
