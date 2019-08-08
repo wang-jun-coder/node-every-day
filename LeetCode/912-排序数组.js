@@ -95,6 +95,48 @@ const quickSort = nums => {
 	return recursive(nums, 0, nums.length-1);
 }
 
+/*
+归并排序
+将数组递归拆分成两个序列, 有序合并这两个序列
+*/
+
+function mergeSort(nums) {
+	// 临时数组存放元素
+	let tmp = [];	
+	function merge(left1, right1, left2, right2) {
+		
+		// 定义左区间游标和右区间游标
+		let i=left1;
+		let j=left2;
+		while(i <= right1 && j <= right2) {
+			// 开始向数组中填充元素, 小的放前面, 哪个区间游标对应的元素填充进去了, 哪个游标右移
+			tmp.push(nums[i]>nums[j] ? nums[j++] : nums[i++]);
+		}
+		// 对比填充完成后, 可能有一侧区间, 仍有剩余元素
+		// 此时分别填充
+		while(i<=right1) {
+			tmp.push(nums[i++]);
+		}
+		while(j<=right2) {
+			tmp.push(nums[j++]);	
+		}
+		// 复制临时数组中的元素到源数组中
+		for(let k=tmp.length-1; k>=0; k--) {
+			nums[left1+k] = tmp.pop();
+		}
+	}
+	// 递归拆分数组, 调用合并函数(分治思想)
+	function recursive(left, right) {
+		if (left >= right) return nums;
+		let mid = Math.floor((right-left)/2 + left);
+		recursive(left, mid);
+		recursive(mid + 1, right);
+		merge(left, mid, mid+1, right)
+		return nums;
+	};
+	return recursive(0, nums.length-1);
+}
+
 
 function randomnums(len=1, min=0, max=1) {
 	let nums = [];
@@ -107,8 +149,12 @@ function randomnums(len=1, min=0, max=1) {
 let nums = randomnums(5, 0, 100);
 nums=[5,2,3,1]
 console.log(nums);
+console.log(`
+-------- result -----------
+`);
 // console.log(bubbleSort(nums));
 // console.log(selectSort(nums));
 // console.log(insertSort(nums));
-console.log(quickSort(nums));
+// console.log(quickSort(nums));
+console.log(mergeSort(nums));
 
