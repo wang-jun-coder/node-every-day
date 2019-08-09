@@ -137,6 +137,40 @@ function mergeSort(nums) {
 	return recursive(0, nums.length-1);
 }
 
+//*************************** 计数排序, 基数排序, 桶排序 ***************************
+/*
+计数排序, 适用于正整数排序, 对于 js 来说, 可以支持负数, 但不支持 小数
+
+主要思路是将待排序数组内的元素, 作为一个计数数组的下标, 遍历待排序数组, 将对应下标加一, 最后遍历计数数组, 将数据填入原数组
+*/
+function countingSort(nums) {
+	if (!nums || nums.length<=1) return nums;
+	const array = [];
+	let min = nums[0];
+	let max = nums[0];
+
+	// 开始计数
+	nums.forEach((n, i) => {
+		array[n] = (array[n] || 0) + 1;
+		min = min < n ? min : n;
+		max = max > n ? max : n;
+	});
+
+	// 还原数组
+	let index = 0; // 用来记录原数组的还原位置
+	for(let i=min; i<=max; i++) {	// 不直接使用 for each, 是为了处理负数的 case 
+		let cnt = array[i];
+		while(cnt > 0) {
+			nums[index] = i;
+			index++;
+			cnt--; // cnt 为 几, 就标记有几个值为 i 的元素
+		}
+
+	}
+	return nums;
+}
+
+
 
 function randomnums(len=1, min=0, max=1) {
 	let nums = [];
@@ -147,7 +181,7 @@ function randomnums(len=1, min=0, max=1) {
 	return nums;
 }
 let nums = randomnums(5, 0, 100);
-nums=[5,2,3,1]
+nums=[3,-1]
 console.log(nums);
 console.log(`
 -------- result -----------
@@ -156,5 +190,6 @@ console.log(`
 // console.log(selectSort(nums));
 // console.log(insertSort(nums));
 // console.log(quickSort(nums));
-console.log(mergeSort(nums));
+// console.log(mergeSort(nums));
+console.log(countingSort(nums));
 
