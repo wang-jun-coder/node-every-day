@@ -170,18 +170,94 @@ function countingSort(nums) {
 	return nums;
 }
 
+// 基数排序, 注意: 只能排序正整数, 如遇负号或小数点, 无法比较
+function radixSort(nums) {
+	nums.forEach(n => {
+		if ((n < 0 || (n+'').includes('.'))) throw new Error('基数排序仅支持正整数');
+	});
+
+	// 声明二维数组, 内层用于存放个位数为对应下标的待排序数字
+	const array = [];
+	for(let i=0; i<10; i++) {
+		array.push([]);
+	}
+	const maxNum = Math.max(...nums);
+	const maxDigit = `${maxNum}`.length;
+	for(let i= maxDigit.length-1; i>=0; i++) {
+		// 遍历数组, 分别以 个位, 十位... 	将数据塞入指定基数桶中
+		nums.forEach(n => {
+			const nStr = n+'';
+			// 取指定位对应的数值, 如不存在,则为 0
+			const key = nStr.length > i ? nStr[i]: 0;
+			array[key].push(n);
+		});
+		// 每轮循环后, 数据已保存至基数桶中
+		// 清空原数组
+		nums.splice(0,nums.length);
+		// 将基数桶中数据倒出
+		for(let i=0; i<array.length;i++) {
+			const len = array[i].length;
+			for(let j=0; j<len;j++) {
+				nums.push(array[i].shift());
+			}
+		}
+	}
+	return nums;
+}
+
+/*
+桶排序, 实际上是对插入排序的一个优化
+主要思路是 利用辅助空间, 将待排序数组分到不同的范围区间, 每个区间又使用插入排序
+
+*/
+function bucketSort(nums) {
+	if (nums.length<=1) return nums;
+	const bucketCnt = Math.ceil(nums.length/100); // 定义桶的个数, 此处根据待排序元素个数计算, 避免桶个数较多, 导致排序较慢
+	let min = nums[0];
+	let max = nums[0];
+	nums.forEach(n => {
+		min = min < n ? min : n;
+		max = max < n ? n : max;
+	});
+
+	// 计算每个桶的范围, 并初始化二维数组, 步长加一, 避免正好整除的情况, 导致元素分配时, 超出分配的桶个数
+	const step = Math.ceil((max-min)/bucketCnt)+1;
+	const bucket = [];
+	for(let i=0; i<bucketCnt; i++) {
+		bucket[i]=[];
+	}
+
+	// 遍历分桶
+	nums.forEach(n => {
+		// 首先分区, 判断当前元素应该属于哪个桶
+		const index = Math.floor((n-min)/step);
+		// 对该桶进行插入排序
+		const curBucket = bucket[index];
+		let j=curBucket.length-1;
+		while(j>=0 && n < curBucket[j] ) {
+			curBucket[j+1] = curBucket[j];
+			j--;
+		}
+		curBucket[j+1]=n;
+	});
+	let idx=0;
+	bucket.forEach(arr => arr.forEach(n => nums[idx++] = n));
+	return nums;
+}
+
+
+
+
 
 
 function randomnums(len=1, min=0, max=1) {
 	let nums = [];
-
 	while(len--) {
 		nums.push(Math.floor(Math.random() * max + min));
 	}
 	return nums;
 }
-let nums = randomnums(5, 0, 100);
-nums=[3,-1]
+let nums = randomnums(10, 0, 100000);
 console.log(nums);
 console.log(`
 -------- result -----------
@@ -189,7 +265,9 @@ console.log(`
 // console.log(bubbleSort(nums));
 // console.log(selectSort(nums));
 // console.log(insertSort(nums));
-// console.log(quickSort(nums));
+console.log(quickSort(nums));
 // console.log(mergeSort(nums));
-console.log(countingSort(nums));
+// console.log(countingSort(nums));
+// console.log(radixSort(nums));
+console.log(bucketSort(nums));
 
