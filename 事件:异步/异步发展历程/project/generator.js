@@ -1,5 +1,6 @@
 const fs = require('fs');
 const util = require('util');
+const co = require('co');
 
 // generator 简单使用
 function* gen1() {
