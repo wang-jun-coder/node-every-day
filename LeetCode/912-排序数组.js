@@ -245,7 +245,37 @@ function bucketSort(nums) {
 	return nums;
 }
 
+/*
+希尔排序
+对插入排序的一种优化, 
+不像插入排序那样, 逐位比较移动, 
+希尔排序通过一个步进值, 将原数组进行拆分成多个小区间, 在小区间内进行插入排序, 
+而后缩小步进值, 直至为 1, 此时数组有序
+*/
 
+function shellSort(nums) {
+	let gap = Math.floor(nums.length/2);
+
+	while(gap) {
+		// 循环处理每个区间
+		for(let i=gap; i<nums.length; i++) {
+			for(let j=i-gap; j>=0; j-=gap) {
+				// 对该区间进行插入排序
+				console.log(`${i} ${j} ${gap} ${nums[j]} ${nums[j+gap]}`);
+				if (nums[j] > nums[j+gap]) {
+					[nums[j], nums[j+gap]] = [nums[j+gap], nums[j]];
+
+				} else {
+					break;
+				}
+
+			}
+		}
+
+		gap = Math.floor(gap/2);
+	}
+	return nums;
+}
 
 
 
@@ -257,7 +287,8 @@ function randomnums(len=1, min=0, max=1) {
 	}
 	return nums;
 }
-let nums = randomnums(10, 0, 100000);
+let nums = randomnums(5, 0, 100000);
+nums = [9, 0, 4, 3, 2];
 console.log(nums);
 console.log(`
 -------- result -----------
@@ -265,9 +296,10 @@ console.log(`
 // console.log(bubbleSort(nums));
 // console.log(selectSort(nums));
 // console.log(insertSort(nums));
-console.log(quickSort(nums));
+// console.log(quickSort(nums));
 // console.log(mergeSort(nums));
 // console.log(countingSort(nums));
 // console.log(radixSort(nums));
-console.log(bucketSort(nums));
+// console.log(bucketSort(nums));
+console.log(shellSort([...nums]));
 
