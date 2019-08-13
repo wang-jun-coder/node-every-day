@@ -261,7 +261,7 @@ function shellSort(nums) {
 		for(let i=gap; i<nums.length; i++) {
 			for(let j=i-gap; j>=0; j-=gap) {
 				// 对该区间进行插入排序
-				console.log(`${i} ${j} ${gap} ${nums[j]} ${nums[j+gap]}`);
+				// console.log(`${i} ${j} ${gap} ${nums[j]} ${nums[j+gap]}`);
 				if (nums[j] > nums[j+gap]) {
 					[nums[j], nums[j+gap]] = [nums[j+gap], nums[j]];
 
@@ -277,6 +277,48 @@ function shellSort(nums) {
 	return nums;
 }
 
+/**
+堆排序
+实际上是选择排序的一种优化
+每次选出给定堆中最大值, 调整到末尾
+然后重新调整堆, 再次获取堆顶元素
+*/
+function heapSort(nums) {
+	if (!nums || nums.length <=1) return nums;
+	function adjustHeap(nums, index, size) {
+		// 调整给定位置对应的元素到堆中的合适位置
+		// console.log(`${index} ${size}`);
+		while(index >= 0 && index < size) {
+			// 默认当前元素最大, 与其两个子节点比较
+			let max = index; 
+			// 左右子节点对应的索引
+			let left = 2 * index + 1; 
+			let right = 2 * index + 2;
+			// 取出三者中最大值, 置于当前结点
+			if (left < size && nums[max] < nums[left]) max = left;
+			if (right < size && nums[max] < nums[right]) max = right;
+			if (index === max) break;
+
+			// 若当前节点并非最大值, 则调整结构
+			[nums[index], nums[max]] = [nums[max], nums[index]];
+			index = max;
+		}
+	}
+
+	// 构建大顶堆, 遍历调整叶节点
+	for(let i=(Math.floor(nums.length/2)-1); i>=0; i--) {
+		adjustHeap(nums, i, nums.length);
+	}
+	// console.log(`build complete`);
+	// console.log(nums);
+	// 循环交换堆顶元素(最大值)和堆底部元素, 重新调整堆结构,
+	for(let i= nums.length-1; i>0; i--) {
+		// 最后一个元素, 无需调整
+		[nums[i], nums[0]] = [nums[0], nums[i]];
+		adjustHeap(nums, 0, i);
+	}
+	return nums;
+}
 
 
 
@@ -287,8 +329,8 @@ function randomnums(len=1, min=0, max=1) {
 	}
 	return nums;
 }
-let nums = randomnums(5, 0, 100000);
-nums = [9, 0, 4, 3, 2];
+let nums = randomnums(10, 0, 100);
+nums = [ 72, 94, 28, 1, 4, 25, 30, 24, 71, 95 ];
 console.log(nums);
 console.log(`
 -------- result -----------
@@ -296,10 +338,11 @@ console.log(`
 // console.log(bubbleSort(nums));
 // console.log(selectSort(nums));
 // console.log(insertSort(nums));
-// console.log(quickSort(nums));
+console.log(quickSort([...nums]));
 // console.log(mergeSort(nums));
 // console.log(countingSort(nums));
 // console.log(radixSort(nums));
 // console.log(bucketSort(nums));
-console.log(shellSort([...nums]));
+// console.log(shellSort([...nums]));
+console.log(heapSort([...nums]));
 
