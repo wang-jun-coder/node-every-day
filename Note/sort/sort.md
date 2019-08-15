@@ -69,9 +69,78 @@
 * 示例代码
 
 	```js
+	function insertSort(nums) {
+		if (!nums || nums.length <= 1) return nums;
+	
+		// 假设数组前 i 个元素有序, 循环后续元素, 一依次插入到合适位置
+		for(let i=1; i< nums.length; i++) {
+			let j = i-1;
+			const cur = nums[i]; // 当前操作的元素
+			// 倒序遍历有序部分, 查找合适的位置
+			while(j>=0 && nums[j] > cur) {
+				nums[j+1] = nums[j]; // 后移比当前元素大的元素
+				j--;
+			}
+			nums[j+1] = cur;
+		}
+		return nums;
+	}
 	```
+* 代码分析
+	* 空间复杂度：未使用额外空间，空间复杂度为 O(1)
+	* 时间复杂度：
+		* 最好：数组已有序，内层插入操作每次仅一次， O(n)
+		* 最坏：数组反序，内层插入操作每次都要遍历已有序部分，O(n<sup>2</sup>)
+		* 平均：O(n<sup>2</sup>)
 
 #### 快速排序
+* 基本思想
+	* 快速排序采用分治的思想，递归处理
+	* 首先选择基准值，通常选择区间最左侧元素
+	* 遍历区间，将区间分为小于基准值和大于基准值的两部分
+	* 将基准值插入到这两部分之间，
+	* 以基准值的位置为中点，拆分并递归处理这两个子区间
+* 示例代码
+
+	```js
+	function quickSort(nums) {
+
+		if (!nums || nums.length <=1) return nums;
+	
+		function partition(nums, left, right) {
+	
+			let base = nums[left];
+			let savePoint = left+1; // 这里存放的是大于基准值的区间下限位置
+	
+	
+			for(let i=left+1; i<=right; i++) {
+				const cur = nums[i];
+				// 如果当前值小于基准值, 则将其余大区间下限交换, 同时将下限提升
+				if (cur<base) {
+					[nums[savePoint], nums[i]] = [nums[i], nums[savePoint]];
+					savePoint++;
+				}
+			}
+			// 循环结束后, 小于 savePoint 的元素, 均小于基准值, 大于等于savePoint 的值, 均大于基准值
+			// 此时基准值仍在最左侧, 所以将基准值和小区间上限交换, 则达成目标, 基准值左侧均小于基准值, 基准值右侧均大于基准值
+			[nums[savePoint-1], nums[left]] = [nums[left], nums[savePoint-1]];
+			return savePoint-1; // 返回此时基准值位置, 便于拆分区间
+		}
+	
+		function recursive(nums, left, right) {
+			if (left >= right) return nums;
+			const index = partition(nums, left, right);
+			recursive(nums, left, index-1);
+			recursive(nums, index+1, right);
+		}
+	
+		recursive(nums, 0, nums.length-1);
+		return nums;
+	}
+	```
+* 代码分析
+	* 空间复杂度： 未使用额外空间，空间复杂度 O(1) 
+	* 	
 
 #### 归并排序
 
