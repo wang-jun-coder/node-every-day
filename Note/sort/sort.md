@@ -140,9 +140,68 @@
 	```
 * 代码分析
 	* 空间复杂度： 未使用额外空间，空间复杂度 O(1) 
-	* 	
+	* 时间复杂度：
+		* 最好：元素均匀分享，此时相当于不断二分数组，O(n*logn)
+		* 最坏：所有元素均处于基数另一侧，此时相当于插入排序，O(n<sup>2</sup>)
+		* 平均：O(n*logn)
 
 #### 归并排序
+* 基本思想
+	* 递归拆分数组，直至拆分到每个区间仅有单个元素
+	* 此时可认为每个区间均有序
+	* 再有序合并拆分后的区间内元素（合并有序数组）
+	* 将合并后的数组，重置到源数组中
+* 代码示例
+
+	```js
+	function mergeSort(nums) {
+
+		if (!nums || nums.length <= 1) return nums;
+		// 治, 有序合并数组
+		function merge(left1, right1, left2, right2) {
+			// 定义临时数组, 存放合并后的结果
+			const tmpArray = [];
+			// 定义两个游标, 分别从区间取值
+			let i = left1;
+			let j = left2;
+	
+			// 合并有序数组
+			while(i<=right1 && j <= right2) {
+				// 遍历两个有序区间内的元素, 哪个小, 将哪个放在临时数组中, 同时移动该区间内的游标, 继续判断, 直至一方或双方同时完成
+				tmpArray.push(nums[i] < nums[j] ? nums[i++] : nums[j++]);
+			}
+			// 若合并后有区间有元素残留
+			while(i <= right1) {
+				tmpArray.push(nums[i++]);
+			}
+			while(j <= right2) {
+				tmpArray.push(nums[j++]);
+			}
+	
+			// 将数组中的数据, 填充至原数组中
+			for(let i=0; i<tmpArray.length; i++) {
+				nums[left1+i] = tmpArray[i];
+			}
+		}
+		// 分, 递归拆分数组, 
+		function recursive(nums, left, right) {
+			if (left>=right) return;
+			const mid = Math.floor((right-left)/2+left);
+			recursive(nums, left, mid);
+			recursive(nums, mid+1,right);
+			merge(left, mid, mid+1, right);
+		}
+	
+		recursive(nums, 0, nums.length-1);
+		return nums;
+	}
+
+	```
+* 代码分析
+	* 空间复复杂度：需要与原数组相同的控件大小作为临时存储，故 O（n）
+	* 时间复杂度
+		* 不管最好最坏，归并排序均为二分至底，然后有序合并，所以其时间复杂度为 O(n * log n)
+	* 注意：归并排序本质上不是数组原地排序，而是将排序结果中的数据存至另一个数组中去了，本示例代码中，将排序结果赋值到待排序数组中，才使得原数组被改变。
 
 #### 计数排序
 
