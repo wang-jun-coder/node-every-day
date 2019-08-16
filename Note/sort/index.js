@@ -2,6 +2,7 @@ const bubbleSort = require('./bubbleSort.js');
 const selectSort = require('./selectSort.js');
 const insertSort = require('./insertSort.js');
 const quickSort = require('./quickSort.js');
+const mergeSort = require('./mergeSort.js');
 
 
 function randomNums(len=1, min=0, max=1) {
@@ -17,3 +18,4 @@ console.log(bubbleSort([...nums]));
 console.log(selectSort([...nums]));
 console.log(insertSort([...nums]));
 console.log(quickSort([...nums]));
+console.log(mergeSort([...nums]));
