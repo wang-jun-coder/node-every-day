@@ -204,10 +204,117 @@
 	* 注意：归并排序本质上不是数组原地排序，而是将排序结果中的数据存至另一个数组中去了，本示例代码中，将排序结果赋值到待排序数组中，才使得原数组被改变。
 
 #### 计数排序
+* 基本思想：
+	* 声明辅助数组，该数组的下标当做被排序的元素
+	* 遍历待排序数组，将元素作为辅助数组的下标，将该下标对应的值加一，标记此元素又出现了一次
+	* 遍历辅助数组，若某个下标对应的值大于零，这当前下标在原数组中出现过对应次数
+	* 注意：
+		* 仅适用于正整数排序
+		* 由于 js 数组的对象特性，索引也可为负数，故在 js 中也支持负数排序
+* 代码示例
+	
+	```js
+	function countingSort(nums) {
+		if (!nums || nums.length <= 1) return nums;
+	
+		let cntArray = [];
+		// 记录最大最小值,(辅助数组的索引范围)
+		let min = nums[0];
+		let max = nums[0];
+	
+		// 遍历计数, 同时记录最大最小值
+		for(let i=0; i<nums.length; i++) {
+			const cnt = cntArray[nums[i]] || 0;
+			cntArray[nums[i]] = cnt+1;
+			min = nums[i] > min ? min : nums[i];
+			max = nums[i] > max ? nums[i] : max;
+		}
+		// 恢复数据至原数组
+		let idx = 0; // 原数组游标
+		for(let i=min; i<=max; i++) {
+			let cnt = cntArray[i];
+			// 将多次出现的值, 依次放入原数组
+			while(cnt && cnt > 0) {
+				nums[idx] = i;
+				cnt --;
+				idx++;
+			}
+		}
+		return nums;
+	}
+	```
+* 代码分析
+	* 空间复杂度，需要长度为 k (k 为数组的最大和最小值之差) 的辅助数组，故空间复杂度为 O(k)
+	* 时间复杂度，不管最好最坏，该排序方式均为 O(n+k)
 
 #### 基数排序
+* 基本思想
+	* 准备一个二维数组，内层数组分别存放对应位为 0-9 的元素
+	* 以最大值的位数来进行遍历，分别取各个元素的对应位（个，十，百，...），作为基数，从外层数组中取出对应的存放数组，如指定位不存在，则补零
+	* 每轮循环完毕，在不考虑未遍历到高位的情况下，数组有序，按顺序合并二维数组中的元素，继续循环直至最高位，此时数组有序
+	* 注意：
+		* 分离位数，所以只能排序正整数，负数小数均不支持
+* 代码示例
 
+	```js
+	function radixSort(nums) {
+		if (!nums || nums.length <= 1) return nums;
+		// 计算数字位数, js 中可以将其转为字符串求长度, 如不利用语言特性, 则需要分离指定位数
+		// function calculateDigits(num) {
+		// 	// return (num+'').length;
+		// 	let digits = 0;
+		// 	while(num>0) {
+		// 		num = Math.floor(num/10);
+		// 		digits++
+		// 	}
+		// 	return digits;
+		// }
+		// 获取指定位对应的值, js 中可转换字符串处理, 如不利用语言特性, 则需要进行计算求得	
+		// function getDigit(num, i) {
+		// 	// return (num+'')[num.length-1 -i]; 
+		// 	num = num % Math.pow(10, i+1);
+		// 	return Math.floor(num/Math.pow(10, i));
+		// }
+	
+		// 基数数组
+		const radixArray = [];
+		for(let i=0; i<10; i++) {
+			radixArray[i]=[];
+		}
+		// 遍历数组获取最大值
+		let max = nums[0];
+		for(let i=0; i<nums.length; i++) {
+			max = max > nums[i] ? max : nums[i];
+		};
+		let maxDigits = `${max}`.length;
+	
+		// 按位数循环排序(从低位到高位进行排序, 避免高位排序后, 次高位影响高位排序好的结果) 
+		for(let i= maxDigits-1; i>=0; i--) {
+			// 循环原数组, 将元素按指定位数, 置于基数对应数组中, 同时清空原数组
+			while(nums.length) {
+				let n = nums.shift();
+				// 高位补零
+				let nStr = `${n}`.padStart(maxDigits, '0');
+				let key = nStr[i]; 
+				radixArray[key].push(n);
+			}
+			// 遍历基数数组, 合并至原数组
+			for(let j=0; j<radixArray.length; j++) {
+				let array = radixArray[j];
+				while(array.length) {
+					nums.push(array.shift());
+				}
+			}
+		}
+		return nums;
+	}
+	```
+* 代码分析
+	* 空间复杂度，需要辅助空间临时存放元素 O(n+k)
+	* 时间复杂度，需要在遍历数组的情况下，外层还需要最大位数次循环，故 O(k*n)
+	
 #### 桶排序
+* 基本思想，
 
 #### 希尔排序
 
