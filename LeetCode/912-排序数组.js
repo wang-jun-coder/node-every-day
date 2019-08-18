@@ -183,12 +183,12 @@ function radixSort(nums) {
 	}
 	const maxNum = Math.max(...nums);
 	const maxDigit = `${maxNum}`.length;
-	for(let i= maxDigit.length-1; i>=0; i++) {
+	for(let i=maxDigit-1; i>=0; i--) {
 		// 遍历数组, 分别以 个位, 十位... 	将数据塞入指定基数桶中
 		nums.forEach(n => {
-			const nStr = n+'';
+			const nStr = (`${n}`.padStart(maxDigit, '0'));
 			// 取指定位对应的数值, 如不存在,则为 0
-			const key = nStr.length > i ? nStr[i]: 0;
+			const key = nStr[i];
 			array[key].push(n);
 		});
 		// 每轮循环后, 数据已保存至基数桶中
@@ -341,8 +341,8 @@ console.log(`
 console.log(quickSort([...nums]));
 // console.log(mergeSort(nums));
 // console.log(countingSort(nums));
-// console.log(radixSort(nums));
+console.log(radixSort([...nums]));
 // console.log(bucketSort(nums));
 // console.log(shellSort([...nums]));
-console.log(heapSort([...nums]));
+// console.log(heapSort([...nums]));
 
