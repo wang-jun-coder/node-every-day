@@ -314,9 +314,107 @@
 	* 时间复杂度，需要在遍历数组的情况下，外层还需要最大位数次循环，故 O(k*n)
 	
 #### 桶排序
-* 基本思想，
+* 基本思想
+	* 获取数组最大值最小值，按桶数量给待排序元素划分区间
+	* 遍历数组，根据元素大小，插入（插入排序）到该元素对应范围的桶中
+	* 合并桶数组，重置待排序数组
+	* 本质上是利用空间换时间，先对元素大小判断，将原数组拆分成多个小组合，在小组合内进行插入排序，一般来说，效率会高一点
+* 示例代码
+	
+	```js
+	function bucketSort(nums) {
+		if (!nums || nums.length <= 1) return nums;
+		// 计算准备桶
+		const bucketCnt = Math.ceil(nums.length/100);
+		const buckets = [];
+		for(let i=0; i<bucketCnt; i++) {
+			buckets[i] = [];
+		}
+		// 获取数组最大最小值, 用来计算步长
+		let min = max = nums[0];
+		nums.forEach(n => {
+			min = min < n ? min : n;
+			max = max > n ? max : n;
+		});
+		// 对于正好除尽无小数的情况, 会导致元素分配超出桶范围, 此处步长加一, 确保元素不会超出桶范围
+		const step = Math.ceil((max-min)/bucketCnt) +1;
+	
+		// 遍历数组, 将元素插入到对应的桶中(同时清空原数组, 便于后续添加元素)
+		while(nums.length) {
+			const n = nums.pop();
+			const index = Math.floor((n-min)/step);
+			const bucket =  buckets[index];
+	
+			let j = bucket.length-1;
+			// 插入排序
+			while(j >=0 && bucket[j] > n) {
+				bucket[j+1] = bucket[j]; // 后移大于 n 的元素
+				j--; 
+			}
+			bucket[j+1] = n;
+		}
+		buckets.forEach(bucket => {
+			nums.push(...bucket);
+		});
+		return nums;
+	}
+
+	```
+
+* 代码分析
+	* 空间复杂度
+		* 使用了辅助空间，空间复杂度与桶个数有关，O(n+k)
+	* 时间复杂度
+		* 最坏情况与插入排序一致，O(n<sup>2</sup>)
+		* 最好情况，每个桶一个，O(n)
+		* 平均情况，O(n+k), k 为桶的个数
 
 #### 希尔排序
+* 基本思想：
+	* 通过一个增量，将待排序元素分为多个组，初始值一般为数组长度的一半
+	* 遍历这些组，并对组内元素进行插入排序
+	* 逐步缩小该增量， 直至为 1，则数组有序
+* 代码示例
+	
+	```js
+	function shellSort(nums) {
+		if (!nums || nums.length <=1) return nums;
+		// 初始增量为数组长度一半, 此时每个分组内元素最多只有两个
+		let gap = Math.floor(nums.length/2);
+		// 调整分组步长, 直至步长唯一, 则此时只有一个元素
+		while(gap > 0) {
+			// 遍历每个分组的每个元素(第一个分组的第二个元素, 第二个分组的第二个元素, 第 gap 个分组的第二个元素, 第一个分组的第二个元素, ...)
+			for(let i=gap; i<nums.length; i++) {
+	
+				// 倒序遍历分组内元素, 如外层循环为第三个元素(倒序第一个), 则倒序遍历, 判断倒数第二个, 如比当前大, 则交换值(大值后移), 直至遍历至合适位置
+				for(let j=i-gap; j>=0; j-=gap) {
+					if (nums[j] > nums[j+gap]) {
+						[nums[j], nums[j+gap]] = [nums[j+gap], nums[j]]
+					} else {
+						// 类似插入排序, 数组遍历查找合适位置, 数组一直有序, 一旦找到合适位置, 再往前的数据无需遍历, 跳过即可
+						break;
+					}
+				}
+			}	
+			gap = Math.floor(gap/2);
+		}
+		return nums;
+	}
+	```
+	 
+* 代码分析
+	* 空间复杂度：未使用额外空间，空间复杂度为 O(1)
+	* 时间复杂度：希尔排序的时间复杂度与其增量序列有关
+		* 步长序列
+			* n/2^i 
+				* 最坏：O(n<sup>2</sup>)
+			* 2^k - 1
+				* 最坏：O(n<sup>3/2</sup>)
+			* 2^i 3^j
+				* 最坏：O(n log^2 n)
+	* 注意：希尔排序的性能与步长序列有直接关系，此处示例代码使用的仅是最简单的不断二分
+	* 参考资料：
+		* [维基百科-希尔排序](https://zh.wikipedia.org/wiki/%E5%B8%8C%E5%B0%94%E6%8E%92%E5%BA%8F)
 
 #### 堆排序
 
