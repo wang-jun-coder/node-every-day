@@ -7,6 +7,7 @@ const countingSort = require('./countingSort.js');
 const radixSort = require('./radixSort.js');
 const bucketSort = require('./bucketSort.js');
 const shellSort = require('./shellSort.js');
+const heapSort = require('./heapSort.js');
 
 
 
@@ -28,3 +29,4 @@ console.log(countingSort([...nums]));
 console.log(radixSort([...nums]));
 console.log(bucketSort([...nums]));
 console.log(shellSort([...nums]));
+console.log(heapSort([...nums]));
