@@ -344,5 +344,5 @@ console.log(quickSort([...nums]));
 console.log(radixSort([...nums]));
 // console.log(bucketSort(nums));
 // console.log(shellSort([...nums]));
-// console.log(heapSort([...nums]));
+console.log(heapSort([...nums]));
 
