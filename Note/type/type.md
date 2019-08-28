@@ -275,8 +275,104 @@ js 中类型判断有以下几种方式，不同的方式各有优缺点，具�
 
 
 ### 函数传参
+* js 中对于基本类型的函数参数传递，采用值传递策略，即在函数体内复制了一份参数值，任何操作不影响其实际值
+* 对于引用类型，则是采用引用传递，相当于函数体内的形参仅是实参的一个别名，此时修改形参属性时，实参也会变，但若将形参指向其他值，则不再影响实参。
+* 示例代码
+
+```js
+const a = 1;
+const b = {};
+const c = {};
+
+
+function func(a, b, c){
+	a ++;
+	b.name = 'b';
+	c = {
+		name: 'c'
+	}
+
+	console.log(a);	// 2
+	console.log(b);	// { name: 'b' }
+	console.log(c);	// { name: 'c' }
+}
+
+func(a, b, c);
+
+console.log(a);	// 1
+console.log(b);	// { name: 'b' }
+console.log(c);	// {}
+```
 
 ### 深度取值
+对于复杂对象的深度取值，如不能确定某个属性是否存在，在判断遗漏的情况下，容易出现 `Cannot read property xxx of undefined/null` 类型错误，一般情况有如下几种方式
+
+* && 
+* || 
+* try-catch
+* get 函数
+* TC39 新提案 ？
+* 示例代码
+
+	```js
+	const obj = {
+		root: {
+			title: 'root',
+			type: 'root',
+			pos: {x: 0,y: 0,w: 100,h: 100,},
+			children: [
+				{
+					title: 'image',
+					type: 'img',
+					src: 'https://xxx.jpg',
+					pos: {x: 0,y: 0,w: 100,h: 100,},
+					children: []
+				}
+			]
+		}
+	}
+	
+	// && 获取图片
+	const url1 = obj && obj.root && obj.root.children && obj.root.children[0] ? obj.root.children[0].src : null;
+	console.log(url1);
+	
+	// || 设置默认值
+	const url2 = ((((obj || {}).root || {}).children || [])[0] || {}).src || null;
+	console.log(url2);
+	
+	// try-catch 
+	let url3 = null;
+	try{
+		url3 = obj.root.children[0].src;
+	} catch(e){
+		console.log(e);
+	}
+	console.log(url3);
+	
+	// get 
+	const get = function(obj, propertys=[] ) { 
+		return propertys.reduce((prev, cur) => {
+			return prev && prev[cur] ? prev[cur] : null;
+		}, obj);
+	}
+	
+	const url4 = get(obj, ['root', 'children', '0', 'src']);
+	console.log(url4);
+	// curry get
+	const get2 = function(propertys) {
+		return function(obj) {
+			return propertys.reduce((prev, cur) => {
+				return prev && prev[cur] ? prev[cur] : null;
+			}, obj);
+		}
+	}
+	const getRootFirstObjectSrc = get2(['root', 'children', '0', 'src']);
+	const url5 = getRootFirstObjectSrc(obj);
+	console.log(url5);
+	
+	// tc39 提案
+	// console.log(obj?.root?.children?[0]?.src)
+	```
 
 
 ### 参考资料
