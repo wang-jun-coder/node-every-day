@@ -201,7 +201,94 @@
 	console.log([] == []); // false; // 两侧类型相同,均为 object, 相当于 [] === []
 
 
-})();
+}); //();
+
+(function(){
+
+	const a = 1;
+	const b = {};
+	const c = {};
+
+
+	function func(a, b, c){
+		a ++;
+		b.name = 'b';
+		c = {
+			name: 'c'
+		}
+
+		console.log(a);	// 2
+		console.log(b);	// { name: 'b' }
+		console.log(c);	// { name: 'c' }
+	}
+
+	func(a, b, c);
+
+	console.log(a);	// 1
+	console.log(b);	// { name: 'b' }
+	console.log(c);	// {}
+}); //();
+
+(function(){
+	const obj = {
+		root: {
+			title: 'root',
+			type: 'root',
+			pos: {x: 0,y: 0,w: 100,h: 100,},
+			children: [
+				{
+					title: 'image',
+					type: 'img',
+					src: 'https://xxx.jpg',
+					pos: {x: 0,y: 0,w: 100,h: 100,},
+					children: []
+				}
+			]
+		}
+	}
+
+	// && 获取图片
+	const url1 = obj && obj.root && obj.root.children && obj.root.children[0] ? obj.root.children[0].src : null;
+	console.log(url1);
+
+	// || 设置默认值
+	const url2 = ((((obj || {}).root || {}).children || [])[0] || {}).src || null;
+	console.log(url2);
+
+	// try-catch 
+	let url3 = null;
+	try{
+		url3 = obj.root.children[0].src;
+	} catch(e){
+		console.log(e);
+	}
+	console.log(url3);
+
+	// get 
+	const get = function(obj, propertys=[] ) { 
+		return propertys.reduce((prev, cur) => {
+			return prev && prev[cur] ? prev[cur] : null;
+		}, obj);
+	}
+
+	const url4 = get(obj, ['root', 'children', '0', 'src']);
+	console.log(url4);
+	// curry get
+	const get2 = function(propertys) {
+		return function(obj) {
+			return propertys.reduce((prev, cur) => {
+				return prev && prev[cur] ? prev[cur] : null;
+			}, obj);
+		}
+	}
+	const getRootFirstObjectSrc = get2(['root', 'children', '0', 'src']);
+	const url5 = getRootFirstObjectSrc(obj);
+	console.log(url5);
+
+	// tc39 提案
+	// console.log(obj?.root?.children?[0]?.src)
+
+})// ();
 
 
 
