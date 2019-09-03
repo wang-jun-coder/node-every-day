@@ -1,0 +1,47 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "Deploy/docker/project/package.json",
+        "Deploy/minikube/micro-deploy/project/gateway/package.json",
+        "Deploy/minikube/micro-deploy/project/service/package.json",
+        "Deploy/registry-discovery/package.json",
+        "Error:Debugger/Debugger/package.json",
+        "Front/vue/cli/cnodejs-ssr/package.json",
+        "Front/vue/cli/cnodejs/package.json",
+        "Front/vue/cli/default-create/package.json",
+        "Front/vue/cli/instant-prototyping/package.json",
+        "Front/vue/cli/todo/package.json",
+        "Front/vue/cli/vue-deploy/package.json",
+        "Front/vue/cli/vue-router/package.json",
+        "Front/vue/cli/vue-ssr/package.json",
+        "Front/vue/cli/vuex/package.json",
+        "Guides/node-docker/docker_web_app/package.json",
+        "Guides/simple-profiling/package.json",
+        "Network/rpc/grpc/node/package.json",
+        "Network/rpc/zookeeper/package.json",
+        "Network/url/package.json",
+        "Note/express-vs-koa2/project/package.json",
+        "Note/oss-upload/package.json",
+        "Project/sso/passport/package.json",
+        "Project/sso/sub-system-2/package.json",
+        "Project/sso/sub-system/package.json",
+        "Security/demo/package.json",
+        "Storage/Mysql/project/package.json",
+        "Storage/Redis/project/package.json",
+        "TS/typescript/package.json",
+        "Test/Test/package.json",
+        "js-基础/Nodejs/node/package.json",
+        "js-基础/内存释放/heapdump/package.json",
+        "事件:异步/Events/events/package.json",
+        "事件:异步/Promise/promise/package.json",
+        "事件:异步/异步发展历程/project/package.json",
+        "模块/addon/helloworld/package.json",
+        "模块/module/dirModule/dirModule1/package.json",
+        "模块/module/dirModule/dirModule2/package.json",
+        "模块/module/dirModule/dirModule3/package.json",
+        "模块/module/package.json"
+      ]
+    }
+  }
+}
