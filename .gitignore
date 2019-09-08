@@ -71,3 +71,4 @@ typings/
 Note/oss-upload/.wj.config.js
 Deploy/minikube/registry/data
 Guides/node-start/node-v10.16.0/**
+Project/node-sh/test.json
